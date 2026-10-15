@@ -21,21 +21,20 @@ export function Pricing() {
   const visibleRates = rates.filter((r) => r.published).sort((a, b) => a.sort - b.sort)
 
   return (
-    <div className="grain">
+    <div className="grid-paper">
       <div className="mx-auto max-w-6xl px-5 py-16">
-        <p className="text-center font-mono text-xs tracking-[0.2em] text-gold uppercase">按用量计费</p>
-        <h1 className="mt-4 text-center font-display text-4xl md:text-6xl">
+        <h1 className="text-center font-display text-4xl text-balance md:text-6xl">
           充多少用多少，
-          <span className="mt-2 block text-mint">不是包月套餐。</span>
+          <span className="mt-2 block text-volt">不是包月套餐。</span>
         </h1>
         <p className="mx-auto mt-5 max-w-2xl text-center text-sm leading-7 text-mute">
           Devin hub 按钱包余额结算。充值 1:1 入账，费用由 Token 用量和模型倍率决定——没有 Lite / Pro / Max
           月费档，也没有加油包。
         </p>
 
-        <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-leaf/40 bg-leaf/10 px-6 py-8 text-center">
-          <p className="font-mono text-[11px] tracking-[0.2em] text-gold uppercase">结算公式</p>
-          <p className="mt-3 font-display text-2xl text-petal md:text-3xl">
+        <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-volt/30 bg-volt/[0.06] px-6 py-8 text-center">
+          <p className="text-sm font-medium text-volt">结算公式</p>
+          <p className="mt-3 font-display text-2xl text-ink md:text-3xl">
             费用 = Token 用量 × 模型倍率
           </p>
           <p className="mt-3 text-sm text-mute">
@@ -45,9 +44,9 @@ export function Pricing() {
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {steps.map((s, i) => (
-            <div key={s.title} className="rounded-3xl border border-line bg-ink-2 p-5">
-              <p className="font-mono text-[11px] text-gold">{String(i + 1).padStart(2, '0')}</p>
-              <h3 className="mt-2 text-lg text-petal">{s.title}</h3>
+            <div key={s.title} className="rounded-3xl border border-line bg-surface p-5">
+              <p className="font-mono text-sm font-medium text-flare">{i + 1}</p>
+              <h3 className="mt-2 text-lg font-medium text-ink">{s.title}</h3>
               <p className="mt-2 text-sm leading-6 text-mute">{s.desc}</p>
             </div>
           ))}
@@ -64,7 +63,7 @@ export function Pricing() {
         <h2 className="mt-16 text-center font-display text-3xl">模型怎么扣</h2>
         <div className="mt-8 overflow-hidden rounded-3xl border border-line">
           <table className="w-full text-left text-sm">
-            <thead className="bg-ink-3 font-mono text-[11px] tracking-wide text-mute">
+            <thead className="bg-sunk text-xs text-mute">
               <tr>
                 <th className="px-5 py-3 font-normal">模型 / 通道</th>
                 <th className="px-5 py-3 font-normal">类型</th>
@@ -75,9 +74,9 @@ export function Pricing() {
             <tbody>
               {visibleRates.map((r) => (
                 <tr key={r.id} className="border-t border-line">
-                  <td className="px-5 py-4 text-petal">{r.name}</td>
+                  <td className="px-5 py-4 text-ink">{r.name}</td>
                   <td className="px-5 py-4 text-mute">{r.kind}</td>
-                  <td className="px-5 py-4 font-mono text-mint">{r.ratio}</td>
+                  <td className="px-5 py-4 font-mono text-volt">{r.ratio}</td>
                   <td className="hidden px-5 py-4 text-mute md:table-cell">{r.note}</td>
                 </tr>
               ))}

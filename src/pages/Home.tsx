@@ -1,4 +1,4 @@
-import { ArrowRight, Download } from 'lucide-react'
+import { ArrowRight, Check, Download, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ClientMock } from '../components/ClientMock'
@@ -15,35 +15,38 @@ export function Home() {
 
   return (
     <div>
-      <section className="grain">
-        <div className="mx-auto grid max-w-6xl gap-10 px-5 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+      <section className="grid-paper">
+        <div className="mx-auto grid max-w-6xl gap-10 px-5 pt-20 pb-14 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
           <div>
-            <p className="font-mono text-xs tracking-[0.16em] text-gold">— {home.kicker}</p>
-            <h1 className="mt-5 font-display text-4xl leading-[1.2] text-balance md:text-6xl">
+            <p className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 text-xs text-mute">
+              <span className="h-1.5 w-1.5 rounded-full bg-flare" />
+              {home.kicker}
+            </p>
+            <h1 className="mt-6 font-display text-[2.6rem] leading-[1.1] text-balance md:text-7xl">
               {home.headline}
-              <span className="block text-mint">{home.highlight}</span>
+              <span className="mt-1 block text-volt">{home.highlight}</span>
             </h1>
           </div>
           <div>
-            <p className="text-[15px] leading-7 text-mute">{home.sub}</p>
+            <p className="text-base leading-7 text-mute">{home.sub}</p>
             <div className="mt-6 flex flex-wrap gap-3">
               <button
                 type="button"
                 onClick={() => setSoon(true)}
-                className="inline-flex items-center gap-2 rounded-full bg-leaf px-5 py-2.5 text-sm font-medium text-petal"
+                className="inline-flex items-center gap-2 rounded-full bg-volt px-5 py-2.5 text-sm font-medium text-white shadow-[0_8px_24px_-8px_rgb(36_70_255/0.6)] transition hover:-translate-y-px hover:bg-[#1a38e0]"
               >
                 <Download size={16} />
                 {home.ctaPrimary}
               </button>
               <Link
                 to="/pricing"
-                className="inline-flex items-center gap-2 rounded-full border border-line px-5 py-2.5 text-sm text-petal no-underline hover:bg-ink-3"
+                className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-5 py-2.5 text-sm text-ink no-underline hover:border-ink/30"
               >
                 {home.ctaSecondary}
                 <ArrowRight size={16} />
               </Link>
             </div>
-            <p className="mt-4 font-mono text-[11px] text-mute">Windows 10 / 11 · macOS</p>
+            <p className="mt-4 text-xs text-mute">支持 Windows 10 / 11 和 macOS</p>
           </div>
         </div>
         <div className="px-5 pb-16">
@@ -54,38 +57,32 @@ export function Home() {
       <StatBar stats={home.stats} />
 
       <section className="mx-auto max-w-6xl px-5 py-20">
-        <p className="font-mono text-xs tracking-[0.2em] text-gold uppercase">为什么选择 Devin hub</p>
-        <h2 className="mt-3 max-w-2xl font-display text-3xl md:text-5xl">
+        <h2 className="max-w-2xl font-display text-3xl text-balance md:text-5xl">
           不改变你的编辑器，只把后台过程说清楚
         </h2>
         <div className="mt-12 grid gap-8 lg:grid-cols-[220px_1fr]">
-          <div className="flex flex-col gap-2">
-            {home.capabilities.map((c, i) => (
+          <div className="flex gap-2 overflow-x-auto lg:flex-col">
+            {home.capabilities.map((c) => (
               <button
                 key={c.id}
                 type="button"
                 onClick={() => setCap(c.id)}
-                className={`rounded-xl px-4 py-3 text-left text-sm ${
-                  cap === c.id ? 'bg-petal text-ink' : 'text-mute hover:text-petal'
+                className={`shrink-0 rounded-xl px-4 py-3 text-left text-sm transition ${
+                  cap === c.id ? 'bg-ink font-medium text-paper' : 'text-mute hover:bg-sunk hover:text-ink'
                 }`}
               >
-                <span className="mr-2 font-mono text-[11px]">{String(i + 1).padStart(2, '0')}</span>
                 {c.id === 'connect' ? '稳定连接' : c.id === 'usage' ? '透明用量' : '统一管理'}
               </button>
             ))}
           </div>
           {current ? (
-            <div className="rounded-3xl border border-line bg-ink-2 p-8">
-              <p className="font-mono text-xs text-gold">
-                {String(home.capabilities.findIndex((c) => c.id === current.id) + 1).padStart(2, '0')} ·{' '}
-                {current.id}
-              </p>
-              <h3 className="mt-3 font-display text-3xl">{current.title}</h3>
+            <div className="rounded-3xl border border-line bg-surface p-8">
+              <h3 className="font-display text-3xl">{current.title}</h3>
               <p className="mt-4 max-w-xl text-sm leading-7 text-mute">{current.desc}</p>
-              <ul className="mt-6 space-y-2 text-sm text-petal">
+              <ul className="mt-6 space-y-2 text-sm text-ink">
                 {current.points.map((p) => (
                   <li key={p} className="flex gap-2">
-                    <span className="text-mint">✓</span>
+                    <Check size={16} className="mt-0.5 shrink-0 text-volt" />
                     {p}
                   </li>
                 ))}
@@ -97,41 +94,39 @@ export function Home() {
 
       <section className="border-t border-line">
         <div className="mx-auto max-w-3xl px-5 py-20">
-          <p className="font-mono text-xs tracking-[0.2em] text-gold uppercase">常见问题</p>
-          <h2 className="mt-3 font-display text-3xl md:text-4xl">使用前，你可能想确认这些</h2>
+          <h2 className="font-display text-3xl md:text-4xl">使用前，你可能想确认这些</h2>
           <div className="mt-10 divide-y divide-line border-y border-line">
             {home.faqs.map((item, i) => (
               <button
                 key={item.q}
                 type="button"
+                aria-expanded={openFaq === i}
                 className="block w-full py-5 text-left"
                 onClick={() => setOpenFaq(openFaq === i ? -1 : i)}
               >
-                <span className="flex items-center justify-between gap-4 text-petal">
-                  <span>
-                    <span className="mr-3 font-mono text-xs text-gold">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    {item.q}
-                  </span>
-                  <span className="text-mute">{openFaq === i ? '–' : '+'}</span>
+                <span className="flex items-center justify-between gap-4 font-medium text-ink">
+                  {item.q}
+                  <Plus
+                    size={18}
+                    className={`shrink-0 text-mute transition-transform ${openFaq === i ? 'rotate-45 text-volt' : ''}`}
+                  />
                 </span>
-                {openFaq === i ? <p className="mt-3 pl-8 text-sm leading-7 text-mute">{item.a}</p> : null}
+                {openFaq === i ? <p className="mt-3 text-sm leading-7 text-mute">{item.a}</p> : null}
               </button>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="border-t border-line bg-ink-2">
-        <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-5 py-16 md:flex-row md:items-end">
-          <div>
-            <h2 className="font-display text-3xl md:text-5xl">{home.downloadTitle}</h2>
-            <p className="mt-4 max-w-xl text-sm leading-7 text-mute">{home.downloadSub}</p>
+      <section className="px-5 pb-20">
+        <div className="relative mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 overflow-hidden rounded-[28px] bg-volt px-8 py-14 text-white md:flex-row md:items-end md:px-12">
+          <div className="relative">
+            <h2 className="font-display text-3xl text-balance md:text-5xl">{home.downloadTitle}</h2>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-white/80">{home.downloadSub}</p>
           </div>
           <Link
             to="/downloads"
-            className="inline-flex items-center gap-2 rounded-full bg-leaf px-5 py-2.5 text-sm text-petal no-underline"
+            className="relative inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-medium text-volt no-underline transition hover:-translate-y-px"
           >
             打开下载中心
             <ArrowRight size={16} />

@@ -23,7 +23,7 @@ export function AdminLayout() {
   }, [nav])
 
   if (!ready) {
-    return <div className="min-h-svh bg-ink p-10 text-mute">校验登录…</div>
+    return <div className="min-h-svh bg-paper p-10 text-mute">校验登录…</div>
   }
 
   async function logout() {
@@ -32,7 +32,7 @@ export function AdminLayout() {
   }
 
   return (
-    <div className="min-h-svh bg-ink text-petal">
+    <div className="min-h-svh bg-paper text-ink">
       <div className="flex min-h-svh">
         <aside className="hidden w-56 shrink-0 border-r border-line p-5 md:block">
           <Logo to="/admin/home" compact />
@@ -42,14 +42,14 @@ export function AdminLayout() {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `rounded-lg px-3 py-2 no-underline ${isActive ? 'bg-leaf/20 text-petal' : 'text-mute hover:text-petal'}`
+                  `rounded-lg px-3 py-2 no-underline ${isActive ? 'bg-volt/10 font-medium text-volt' : 'text-mute hover:text-ink'}`
                 }
               >
                 {item.label}
               </NavLink>
             ))}
           </nav>
-          <button type="button" onClick={logout} className="mt-10 text-xs text-mute hover:text-petal">
+          <button type="button" onClick={logout} className="mt-10 text-xs text-mute hover:text-ink">
             退出
           </button>
         </aside>
@@ -93,12 +93,12 @@ export function SaveBar({
         type="button"
         onClick={onSave}
         disabled={pending}
-        className="rounded-full bg-leaf px-5 py-2 text-sm text-petal disabled:opacity-60"
+        className="rounded-full bg-volt px-5 py-2 text-sm text-white disabled:opacity-60"
       >
         {pending ? '保存中…' : '保存并发布'}
       </button>
-      {message ? <span className="text-sm text-mint">{message}</span> : null}
-      {error ? <span className="text-sm text-gold">{error}</span> : null}
+      {message ? <span className="text-sm text-volt">{message}</span> : null}
+      {error ? <span className="text-sm text-flare">{error}</span> : null}
     </div>
   )
 }

@@ -20,18 +20,18 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-40">
       {notice.enabled && notice.text ? (
-        <div className="bg-ink-3/90 text-center text-[13px] text-petal">
+        <div className="bg-volt text-center text-[13px] text-white">
           {notice.href ? (
-            <Link to={notice.href} className="block px-4 py-2 text-petal no-underline hover:text-mint">
+            <Link to={notice.href} className="block px-4 py-2 text-white no-underline hover:underline">
               {notice.text}
-              <span className="ml-2 text-gold">查看</span>
+              <span className="ml-2 font-medium underline underline-offset-2">查看</span>
             </Link>
           ) : (
             <p className="px-4 py-2">{notice.text}</p>
           )}
         </div>
       ) : null}
-      <div className="border-b border-line bg-ink/80 backdrop-blur-xl">
+      <div className="border-b border-line bg-paper/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
           <Logo />
           <nav className="hidden items-center gap-7 text-sm text-mute md:flex">
@@ -40,7 +40,7 @@ export function Nav() {
                 key={l.to}
                 to={l.to}
                 className={({ isActive }) =>
-                  `no-underline transition ${isActive ? 'text-petal' : 'text-mute hover:text-petal'}`
+                  `no-underline transition ${isActive ? 'text-ink' : 'text-mute hover:text-ink'}`
                 }
                 end={l.to === '/'}
               >
@@ -51,14 +51,14 @@ export function Nav() {
           <div className="hidden items-center gap-2 md:flex">
             <button
               type="button"
-              className="rounded-full px-3 py-1.5 text-sm text-mute hover:text-petal"
+              className="rounded-full px-3 py-1.5 text-sm text-mute hover:text-ink"
               onClick={() => setSoon('登录')}
             >
               登录
             </button>
             <button
               type="button"
-              className="rounded-full bg-leaf px-4 py-1.5 text-sm font-medium text-petal"
+              className="rounded-full bg-volt px-4 py-1.5 text-sm font-medium text-white"
               onClick={() => setSoon('注册')}
             >
               注册
@@ -66,7 +66,7 @@ export function Nav() {
           </div>
           <button
             type="button"
-            className="md:hidden text-petal"
+            className="md:hidden text-ink"
             onClick={() => setOpen((v) => !v)}
             aria-label="菜单"
           >
@@ -80,7 +80,7 @@ export function Nav() {
                 <NavLink
                   key={l.to}
                   to={l.to}
-                  className="text-petal no-underline"
+                  className="text-ink no-underline"
                   onClick={() => setOpen(false)}
                 >
                   {l.label}

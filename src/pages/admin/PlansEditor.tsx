@@ -74,7 +74,7 @@ export function PlansEditor() {
         <p className="mt-2 text-sm text-mute">到账金额，不是包月周期。</p>
         <button
           type="button"
-          className="mt-4 text-sm text-mint"
+          className="mt-4 text-sm text-volt"
           onClick={() => setSelected(emptyPlan())}
         >
           + 新建
@@ -86,11 +86,11 @@ export function PlansEditor() {
                 type="button"
                 onClick={() => setSelected(p)}
                 className={`w-full rounded-lg px-3 py-2 text-left text-sm ${
-                  selected?.id === p.id ? 'bg-leaf/20' : 'text-mute hover:text-petal'
+                  selected?.id === p.id ? 'bg-volt/10 font-medium text-volt' : 'text-mute hover:text-ink'
                 }`}
               >
                 {p.name}
-                {!p.published ? <span className="ml-2 text-xs text-gold">下架</span> : null}
+                {!p.published ? <span className="ml-2 text-xs text-flare">下架</span> : null}
               </button>
             </li>
           ))}
@@ -133,7 +133,7 @@ export function PlansEditor() {
           <label className="mt-3 block text-xs text-mute">
             卖点（一行一条）
             <textarea
-              className="mt-1 min-h-28 w-full rounded-xl border border-line bg-ink-2 px-3 py-2 text-sm text-petal outline-none"
+              className="mt-1 min-h-28 w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink outline-none"
               value={selected.features.join('\n')}
               onChange={(e) =>
                 setSelected({
@@ -163,7 +163,7 @@ export function PlansEditor() {
           </div>
           <SaveBar message={message} error={error} pending={pending} onSave={save} />
           {selected.id ? (
-            <button type="button" onClick={remove} className="mt-4 text-sm text-gold">
+            <button type="button" onClick={remove} className="mt-4 text-sm text-flare">
               删除此档
             </button>
           ) : null}
@@ -190,7 +190,7 @@ function Input({
     <label className={`block text-xs text-mute ${className}`}>
       {label}
       <input
-        className="mt-1 w-full rounded-xl border border-line bg-ink-2 px-3 py-2 text-sm text-petal outline-none"
+        className="mt-1 w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink outline-none"
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />

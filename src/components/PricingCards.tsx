@@ -15,30 +15,30 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
             key={plan.slug}
             className={`flex flex-col rounded-3xl border p-5 ${
               plan.highlighted
-                ? 'border-leaf bg-leaf/10 shadow-[0_0_0_1px_rgba(61,143,110,0.35)]'
-                : 'border-line bg-ink-2/80'
+                ? 'border-volt bg-surface shadow-[0_0_0_1px_var(--color-volt),0_24px_48px_-24px_rgb(36_70_255/0.4)]'
+                : 'border-line bg-surface'
             }`}
           >
             <div className="flex items-center justify-between gap-2">
-              <h3 className="text-lg text-petal">充值 {plan.name}</h3>
+              <h3 className="text-lg text-ink">充值 {plan.name}</h3>
               {plan.badge ? (
                 <span
                   className={`rounded-full px-2 py-0.5 text-[10px] ${
-                    plan.highlighted ? 'bg-leaf text-petal' : 'bg-ink-3 text-mute'
+                    plan.highlighted ? 'bg-volt text-white' : 'bg-sunk text-mute'
                   }`}
                 >
                   {plan.badge}
                 </span>
               ) : null}
             </div>
-            <p className="mt-4 font-display text-3xl text-petal">{plan.price}</p>
+            <p className="mt-4 font-display text-3xl text-ink">{plan.price}</p>
             <p className="mt-2 text-xs text-mute">{plan.description || '1:1 到账钱包'}</p>
             {plan.quotas.length ? (
               <div className="mt-4 space-y-2 border-t border-line pt-4">
                 {plan.quotas.map((q) => (
                   <div key={q.label} className="flex items-baseline justify-between text-xs">
                     <span className="text-mute">{q.label}</span>
-                    <span className="text-mint">
+                    <span className="text-volt">
                       {q.value}
                       {q.note ? <span className="ml-1 text-mute">{q.note}</span> : null}
                     </span>
@@ -49,7 +49,7 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
             <ul className="mt-4 flex-1 space-y-2 text-sm text-mute">
               {plan.features.map((f) => (
                 <li key={f} className="flex gap-2">
-                  <Check size={14} className="mt-1 shrink-0 text-mint" />
+                  <Check size={14} className="mt-1 shrink-0 text-volt" />
                   <span>{f}</span>
                 </li>
               ))}
@@ -58,7 +58,7 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
               type="button"
               onClick={() => setSoon(true)}
               className={`mt-6 rounded-full py-2.5 text-sm ${
-                plan.highlighted ? 'bg-leaf text-petal' : 'border border-line text-petal hover:bg-ink-3'
+                plan.highlighted ? 'bg-volt text-white' : 'border border-line text-ink hover:bg-sunk'
               }`}
             >
               充值到钱包

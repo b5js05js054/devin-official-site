@@ -51,7 +51,7 @@ export function RatesEditor() {
     <div>
       <h1 className="font-display text-3xl">模型倍率</h1>
       <p className="mt-2 text-sm text-mute">展示在计费页。中继实际扣费以登录后同步的模型目录为准。</p>
-      <button type="button" className="mt-4 text-sm text-mint" onClick={addRow}>
+      <button type="button" className="mt-4 text-sm text-volt" onClick={addRow}>
         + 新增一行
       </button>
       <div className="mt-4 overflow-x-auto">
@@ -72,7 +72,7 @@ export function RatesEditor() {
               <tr key={r.id} className="border-t border-line">
                 <td className="py-2 pr-2">
                   <input
-                    className="w-full rounded-lg border border-line bg-ink-2 px-2 py-1.5 text-petal"
+                    className="w-full rounded-lg border border-line bg-surface px-2 py-1.5 text-ink"
                     value={r.name}
                     onChange={(e) =>
                       setRates(rates.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))
@@ -81,7 +81,7 @@ export function RatesEditor() {
                 </td>
                 <td className="py-2 pr-2">
                   <input
-                    className="w-24 rounded-lg border border-line bg-ink-2 px-2 py-1.5 text-petal"
+                    className="w-24 rounded-lg border border-line bg-surface px-2 py-1.5 text-ink"
                     value={r.kind}
                     onChange={(e) =>
                       setRates(rates.map((x, j) => (j === i ? { ...x, kind: e.target.value } : x)))
@@ -90,7 +90,7 @@ export function RatesEditor() {
                 </td>
                 <td className="py-2 pr-2">
                   <input
-                    className="w-24 rounded-lg border border-line bg-ink-2 px-2 py-1.5 text-petal"
+                    className="w-24 rounded-lg border border-line bg-surface px-2 py-1.5 text-ink"
                     value={r.ratio}
                     onChange={(e) =>
                       setRates(rates.map((x, j) => (j === i ? { ...x, ratio: e.target.value } : x)))
@@ -99,7 +99,7 @@ export function RatesEditor() {
                 </td>
                 <td className="py-2 pr-2">
                   <input
-                    className="w-full rounded-lg border border-line bg-ink-2 px-2 py-1.5 text-petal"
+                    className="w-full rounded-lg border border-line bg-surface px-2 py-1.5 text-ink"
                     value={r.note}
                     onChange={(e) =>
                       setRates(rates.map((x, j) => (j === i ? { ...x, note: e.target.value } : x)))
@@ -108,7 +108,7 @@ export function RatesEditor() {
                 </td>
                 <td className="py-2 pr-2">
                   <input
-                    className="w-16 rounded-lg border border-line bg-ink-2 px-2 py-1.5 text-petal"
+                    className="w-16 rounded-lg border border-line bg-surface px-2 py-1.5 text-ink"
                     value={String(r.sort)}
                     onChange={(e) =>
                       setRates(
@@ -129,7 +129,7 @@ export function RatesEditor() {
                 <td className="py-2">
                   <button
                     type="button"
-                    className="text-xs text-gold"
+                    className="text-xs text-flare"
                     onClick={() => setRates(rates.filter((_, j) => j !== i))}
                   >
                     删

@@ -62,7 +62,7 @@ export function DocsEditor() {
     <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
       <div>
         <h1 className="font-display text-3xl">文档</h1>
-        <button type="button" className="mt-4 text-sm text-mint" onClick={() => setSelected(emptyDoc())}>
+        <button type="button" className="mt-4 text-sm text-volt" onClick={() => setSelected(emptyDoc())}>
           + 新建
         </button>
         <ul className="mt-4 space-y-1">
@@ -72,7 +72,7 @@ export function DocsEditor() {
                 type="button"
                 onClick={() => setSelected(d)}
                 className={`w-full rounded-lg px-3 py-2 text-left text-sm ${
-                  selected?.id === d.id ? 'bg-leaf/20' : 'text-mute'
+                  selected?.id === d.id ? 'bg-volt/10 font-medium text-volt' : 'text-mute'
                 }`}
               >
                 {d.title}
@@ -87,7 +87,7 @@ export function DocsEditor() {
             <label className="text-xs text-mute">
               分组
               <input
-                className="mt-1 w-full rounded-xl border border-line bg-ink-2 px-3 py-2 text-sm text-petal outline-none"
+                className="mt-1 w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink outline-none"
                 value={selected.groupName}
                 onChange={(e) => setSelected({ ...selected, groupName: e.target.value })}
               />
@@ -95,7 +95,7 @@ export function DocsEditor() {
             <label className="text-xs text-mute">
               slug
               <input
-                className="mt-1 w-full rounded-xl border border-line bg-ink-2 px-3 py-2 text-sm text-petal outline-none"
+                className="mt-1 w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink outline-none"
                 value={selected.slug}
                 onChange={(e) => setSelected({ ...selected, slug: e.target.value })}
               />
@@ -103,7 +103,7 @@ export function DocsEditor() {
             <label className="text-xs text-mute">
               标题
               <input
-                className="mt-1 w-full rounded-xl border border-line bg-ink-2 px-3 py-2 text-sm text-petal outline-none"
+                className="mt-1 w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink outline-none"
                 value={selected.title}
                 onChange={(e) => setSelected({ ...selected, title: e.target.value })}
               />
@@ -119,7 +119,7 @@ export function DocsEditor() {
           </label>
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
             <textarea
-              className="min-h-80 rounded-2xl border border-line bg-ink-2 p-4 font-mono text-sm text-petal outline-none"
+              className="min-h-80 rounded-2xl border border-line bg-surface p-4 font-mono text-sm text-ink outline-none"
               value={selected.body}
               onChange={(e) => setSelected({ ...selected, body: e.target.value })}
             />
@@ -130,7 +130,7 @@ export function DocsEditor() {
           </div>
           <SaveBar message={message} error={error} pending={pending} onSave={save} />
           {selected.id ? (
-            <button type="button" onClick={remove} className="mt-4 text-sm text-gold">
+            <button type="button" onClick={remove} className="mt-4 text-sm text-flare">
               删除此文档
             </button>
           ) : null}

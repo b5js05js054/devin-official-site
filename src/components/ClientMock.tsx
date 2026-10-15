@@ -28,14 +28,13 @@ export function ClientMock() {
 
   return (
     <div className="relative mx-auto max-w-5xl">
-      <div className="absolute -inset-8 -z-10 rounded-[36px] bg-gradient-to-b from-leaf/20 via-transparent to-transparent blur-2xl" />
-      <div className="overflow-hidden rounded-[28px] border border-line bg-[#07110e] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.8)]">
+      <div className="scope-dark overflow-hidden rounded-[20px] border border-line bg-paper shadow-[0_48px_96px_-32px_rgb(17_20_27/0.45)] ring-1 ring-black/5">
         <div className="flex items-center gap-4 border-b border-line px-4 py-3">
-          <div className="flex items-center gap-2 text-petal">
-            <LayoutGrid size={16} className="text-mint" />
+          <div className="flex shrink-0 items-center gap-2 text-ink">
+            <LayoutGrid size={16} className="text-volt" />
             <span className="text-sm font-medium">Devin hub</span>
           </div>
-          <nav className="flex flex-1 items-center gap-1 overflow-x-auto">
+          <nav className="flex flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none]">
             {tabs.map((item) => {
               const Icon = item.icon
               const active = tab === item.id
@@ -44,8 +43,8 @@ export function ClientMock() {
                   key={item.id}
                   type="button"
                   onClick={() => setTab(item.id)}
-                  className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs ${
-                    active ? 'bg-ink-3 text-petal' : 'text-mute hover:text-petal'
+                  className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs ${
+                    active ? 'bg-sunk text-ink' : 'text-mute hover:text-ink'
                   }`}
                 >
                   <Icon size={13} />
@@ -86,8 +85,8 @@ function AccountPane() {
         ['钱包', '按量余额'],
         ['今日用量', '从个人账本加载'],
       ].map(([title, sub]) => (
-        <div key={title} className="rounded-2xl border border-line bg-ink-2 p-4">
-          <p className="text-sm text-petal">{title}</p>
+        <div key={title} className="rounded-2xl border border-line bg-surface p-4">
+          <p className="text-sm text-ink">{title}</p>
           <p className="mt-6 text-xs text-mute">{sub}</p>
         </div>
       ))}
@@ -98,18 +97,18 @@ function AccountPane() {
 function ConnectPane() {
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-line bg-ink-2 p-5">
+      <div className="rounded-2xl border border-line bg-surface p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="flex items-center gap-2 text-sm text-petal">
+            <p className="flex items-center gap-2 text-sm text-ink">
               工作环境
-              <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] text-gold">
+              <span className="rounded-full bg-flare/15 px-2 py-0.5 text-[10px] text-flare">
                 登录后读取倍率
               </span>
             </p>
             <button
               type="button"
-              className="mt-4 inline-flex items-center gap-2 rounded-full bg-leaf px-4 py-2 text-sm text-petal"
+              className="mt-4 inline-flex items-center gap-2 rounded-full bg-volt px-4 py-2 text-sm text-white"
             >
               <Play size={14} />
               启动工作环境
@@ -127,7 +126,7 @@ function ConnectPane() {
             <p className="flex items-center justify-end gap-2 text-mute">
               <Wallet size={12} />
               ¥ --
-              <span className="text-gold">去充值</span>
+              <span className="text-flare">去充值</span>
             </p>
           </div>
         </div>
@@ -141,15 +140,15 @@ function ConnectPane() {
 
 function UsagePane() {
   return (
-    <div className="rounded-2xl border border-line bg-ink-2 p-5">
+    <div className="rounded-2xl border border-line bg-surface p-5">
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-petal">请求用量明细</p>
-        <span className="rounded-full bg-leaf/20 px-2 py-0.5 text-[10px] text-mint">登录后加载</span>
+        <p className="text-sm text-ink">请求用量明细</p>
+        <span className="rounded-full bg-volt/15 px-2 py-0.5 text-[10px] text-volt">登录后加载</span>
       </div>
       <div className="space-y-2">
         {['模型请求进入', '主线路响应检查', '自动切换可用线路', '响应完成并结算'].map((row, i) => (
-          <div key={row} className="flex items-center justify-between rounded-xl bg-ink px-4 py-3 text-sm">
-            <span className="text-petal">{row}</span>
+          <div key={row} className="flex items-center justify-between rounded-xl bg-paper px-4 py-3 text-sm">
+            <span className="text-ink">{row}</span>
             <span className="font-mono text-[11px] text-mute">{i === 3 ? '已结清' : '示意'}</span>
           </div>
         ))}
@@ -167,9 +166,9 @@ function ShopPane({ plans }: { plans: { name: string; price: string }[] }) {
   return (
     <div className="grid gap-3 md:grid-cols-3">
       {items.map((p) => (
-        <div key={p.name} className="rounded-2xl border border-line bg-ink-2 p-4">
-          <p className="text-sm text-petal">充值 {p.name}</p>
-          <p className="mt-3 font-display text-2xl text-mint">{p.price}</p>
+        <div key={p.name} className="rounded-2xl border border-line bg-surface p-4">
+          <p className="text-sm text-ink">充值 {p.name}</p>
+          <p className="mt-3 font-display text-2xl text-volt">{p.price}</p>
           <p className="mt-3 text-xs text-mute">1:1 到账钱包，按量扣除</p>
         </div>
       ))}
@@ -180,11 +179,11 @@ function ShopPane({ plans }: { plans: { name: string; price: string }[] }) {
 function SettingsPane() {
   return (
     <div className="space-y-3 text-sm">
-      <div className="flex items-center justify-between rounded-2xl border border-line bg-ink-2 px-4 py-3">
+      <div className="flex items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3">
         <span>关于 Devin hub</span>
         <span className="font-mono text-xs text-mute">v1.0.0</span>
       </div>
-      <div className="flex items-center justify-between rounded-2xl border border-line bg-ink-2 px-4 py-3">
+      <div className="flex items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3">
         <span>复制连接日志</span>
         <Copy size={14} className="text-mute" />
       </div>

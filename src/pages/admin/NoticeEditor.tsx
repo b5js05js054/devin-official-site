@@ -42,7 +42,7 @@ export function NoticeEditor() {
       <label className="mt-4 block text-xs text-mute">
         文案
         <input
-          className="mt-1 w-full rounded-xl border border-line bg-ink-2 px-3 py-2 text-sm text-petal outline-none"
+          className="mt-1 w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink outline-none"
           value={notice.text}
           onChange={(e) => setNotice({ ...notice, text: e.target.value })}
         />
@@ -50,7 +50,7 @@ export function NoticeEditor() {
       <label className="mt-4 block text-xs text-mute">
         链接（站内路径，如 /downloads）
         <input
-          className="mt-1 w-full rounded-xl border border-line bg-ink-2 px-3 py-2 text-sm text-petal outline-none"
+          className="mt-1 w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink outline-none"
           value={notice.href}
           onChange={(e) => setNotice({ ...notice, href: e.target.value })}
         />

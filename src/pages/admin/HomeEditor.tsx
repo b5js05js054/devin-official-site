@@ -138,13 +138,13 @@ function Field({
       {label}
       {textarea ? (
         <textarea
-          className="mt-1 min-h-24 w-full rounded-xl border border-line bg-ink-2 px-3 py-2 text-sm text-petal outline-none"
+          className="mt-1 min-h-24 w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink outline-none"
           value={value}
           onChange={(e) => onChange(e.target.value)}
         />
       ) : (
         <input
-          className="mt-1 w-full rounded-xl border border-line bg-ink-2 px-3 py-2 text-sm text-petal outline-none"
+          className="mt-1 w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink outline-none"
           value={value}
           onChange={(e) => onChange(e.target.value)}
         />

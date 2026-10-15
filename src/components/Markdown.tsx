@@ -3,14 +3,14 @@ function inline(text: string) {
   return parts.map((part, i) => {
     if (part.startsWith('`') && part.endsWith('`')) {
       return (
-        <code key={i} className="rounded bg-ink-3 px-1.5 py-0.5 font-mono text-[13px] text-mint">
+        <code key={i} className="rounded bg-sunk px-1.5 py-0.5 font-mono text-[13px] text-volt">
           {part.slice(1, -1)}
         </code>
       )
     }
     if (part.startsWith('**') && part.endsWith('**')) {
       return (
-        <strong key={i} className="font-medium text-petal">
+        <strong key={i} className="font-medium text-ink">
           {part.slice(2, -2)}
         </strong>
       )
@@ -43,9 +43,9 @@ export function Markdown({ source }: { source: string }) {
             </ol>
           )
         }
-        if (block.startsWith('### ')) return <h3 key={i} className="font-display text-xl text-petal">{inline(block.slice(4))}</h3>
-        if (block.startsWith('## ')) return <h2 key={i} className="font-display text-2xl text-petal">{inline(block.slice(3))}</h2>
-        if (block.startsWith('# ')) return <h1 key={i} className="font-display text-3xl text-petal">{inline(block.slice(2))}</h1>
+        if (block.startsWith('### ')) return <h3 key={i} className="font-display text-xl text-ink">{inline(block.slice(4))}</h3>
+        if (block.startsWith('## ')) return <h2 key={i} className="font-display text-2xl text-ink">{inline(block.slice(3))}</h2>
+        if (block.startsWith('# ')) return <h1 key={i} className="font-display text-3xl text-ink">{inline(block.slice(2))}</h1>
         return <p key={i}>{inline(block.replaceAll('\n', ' '))}</p>
       })}
     </div>

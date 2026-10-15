@@ -64,7 +64,7 @@ export function DownloadsEditor() {
     <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
       <div>
         <h1 className="font-display text-3xl">下载</h1>
-        <button type="button" className="mt-4 text-sm text-mint" onClick={() => setSelected(emptyItem())}>
+        <button type="button" className="mt-4 text-sm text-volt" onClick={() => setSelected(emptyItem())}>
           + 新建版本
         </button>
         <ul className="mt-4 space-y-1">
@@ -74,7 +74,7 @@ export function DownloadsEditor() {
                 type="button"
                 onClick={() => setSelected(item)}
                 className={`w-full rounded-lg px-3 py-2 text-left text-sm ${
-                  selected?.id === item.id ? 'bg-leaf/20' : 'text-mute'
+                  selected?.id === item.id ? 'bg-volt/10 font-medium text-volt' : 'text-mute'
                 }`}
               >
                 v{item.version}
@@ -128,7 +128,7 @@ export function DownloadsEditor() {
           <div className="md:col-span-2">
             <SaveBar message={message} error={error} pending={pending} onSave={save} />
             {selected.id ? (
-              <button type="button" onClick={remove} className="mt-4 text-sm text-gold">
+              <button type="button" onClick={remove} className="mt-4 text-sm text-flare">
                 删除此版本
               </button>
             ) : null}
@@ -156,7 +156,7 @@ function Field({
     <label className={`block text-xs text-mute ${className}`}>
       {label}
       <input
-        className="mt-1 w-full rounded-xl border border-line bg-ink-2 px-3 py-2 text-sm text-petal outline-none"
+        className="mt-1 w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink outline-none"
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />

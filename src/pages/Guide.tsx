@@ -12,7 +12,7 @@ export function Guide() {
   return (
     <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 lg:grid-cols-[240px_1fr]">
       <aside>
-        <p className="font-mono text-xs tracking-[0.16em] text-gold uppercase">使用指南</p>
+        <p className="font-display text-lg">使用指南</p>
         {groups.map((group) => (
           <div key={group} className="mt-6">
             <p className="text-xs text-mute">{group}</p>
@@ -26,8 +26,8 @@ export function Guide() {
                       className={({ isActive }) =>
                         `block rounded-lg px-3 py-2 text-sm no-underline ${
                           (isActive || current?.slug === d.slug) && (!slug || slug === d.slug)
-                            ? 'bg-leaf/20 text-petal'
-                            : 'text-mute hover:text-petal'
+                            ? 'bg-volt/10 font-medium text-volt'
+                            : 'text-mute hover:text-ink'
                         }`
                       }
                     >
@@ -42,7 +42,7 @@ export function Guide() {
       <article>
         {current ? (
           <>
-            <p className="font-mono text-xs text-gold">{current.groupName}</p>
+            <p className="text-sm font-medium text-volt">{current.groupName}</p>
             <h1 className="mt-2 font-display text-4xl">{current.title}</h1>
             <div className="mt-8">
               <Markdown source={current.body} />

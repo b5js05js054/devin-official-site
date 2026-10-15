@@ -12,54 +12,54 @@ export function Footer() {
           </p>
         </div>
         <div>
-          <p className="font-mono text-xs tracking-[0.16em] text-gold uppercase">产品</p>
+          <p className="text-sm font-semibold text-ink">产品</p>
           <ul className="mt-4 space-y-2 text-sm">
             <li>
-              <Link className="text-mute no-underline hover:text-petal" to="/pricing">
+              <Link className="text-mute no-underline hover:text-ink" to="/pricing">
                 计费说明
               </Link>
             </li>
             <li>
-              <Link className="text-mute no-underline hover:text-petal" to="/downloads">
+              <Link className="text-mute no-underline hover:text-ink" to="/downloads">
                 下载中心
               </Link>
             </li>
             <li>
-              <Link className="text-mute no-underline hover:text-petal" to="/guide">
+              <Link className="text-mute no-underline hover:text-ink" to="/guide">
                 使用指南
               </Link>
             </li>
           </ul>
         </div>
         <div>
-          <p className="font-mono text-xs tracking-[0.16em] text-gold uppercase">支持</p>
+          <p className="text-sm font-semibold text-ink">支持</p>
           <ul className="mt-4 space-y-2 text-sm">
             <li>
-              <Link className="text-mute no-underline hover:text-petal" to="/guide/faq">
+              <Link className="text-mute no-underline hover:text-ink" to="/guide/faq">
                 常见问题
               </Link>
             </li>
             <li>
-              <Link className="text-mute no-underline hover:text-petal" to="/guide/billing">
+              <Link className="text-mute no-underline hover:text-ink" to="/guide/billing">
                 计费说明
               </Link>
             </li>
             <li>
-              <Link className="text-mute no-underline hover:text-petal" to="/admin">
+              <Link className="text-mute no-underline hover:text-ink" to="/admin">
                 内容后台
               </Link>
             </li>
           </ul>
         </div>
         <div>
-          <p className="font-mono text-xs tracking-[0.16em] text-gold uppercase">关于</p>
+          <p className="text-sm font-semibold text-ink">关于</p>
           <p className="mt-4 text-sm leading-6 text-mute">
             单文件 Go 中继，无第三方运行时依赖。协议适配、卡密、审核与结算在同一条链路上完成。
           </p>
         </div>
       </div>
       <div className="border-t border-line">
-        <p className="mx-auto max-w-6xl px-5 py-5 font-mono text-[11px] tracking-wide text-mute">
+        <p className="mx-auto max-w-6xl px-5 py-5 text-xs text-mute">
           © {new Date().getFullYear()} Devin hub · 充值档与倍率可在内容后台修改
         </p>
       </div>
