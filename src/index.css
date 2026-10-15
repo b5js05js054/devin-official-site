@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --color-ink: #0a1210;
+  --color-ink-2: #101c18;
+  --color-ink-3: #17241f;
+  --color-line: rgb(243 236 224 / 0.12);
+  --color-petal: #f3ece0;
+  --color-mute: rgb(243 236 224 / 0.62);
+  --color-leaf: #3d8f6e;
+  --color-mint: #7dcea0;
+  --color-gold: #c9a86c;
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--color-ink);
+  color: var(--color-petal);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+::selection {
+  background: rgb(61 143 110 / 0.35);
+  color: var(--color-petal);
+}
+
+.grain {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgb(61 143 110 / 0.16), transparent 55%),
+    radial-gradient(ellipse 40% 30% at 90% 10%, rgb(201 168 108 / 0.08), transparent 50%);
+}
+
+.panel {
+  border: 1px solid var(--color-line);
+  background: rgb(16 28 24 / 0.72);
+  backdrop-filter: blur(16px);
+}
