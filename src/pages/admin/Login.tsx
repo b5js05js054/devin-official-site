@@ -32,7 +32,7 @@ export function AdminLogin() {
       <form onSubmit={onSubmit} className="panel w-full max-w-sm rounded-3xl p-8">
         <Logo to="/admin/login" />
         <h1 className="mt-6 font-display text-3xl">内容后台</h1>
-        <p className="mt-2 text-sm text-mute">改首页、充值档、倍率、下载与文档。不是卡密计费后台。</p>
+        <p className="mt-2 text-sm text-mute">改首页、计费说明、下载与文档。不是卡密计费后台。</p>
         <label className="mt-6 block text-xs text-mute">
           用户名
           <input

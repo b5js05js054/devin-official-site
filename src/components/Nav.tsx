@@ -2,7 +2,6 @@ import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { useContent } from '../lib/content'
-import { ComingSoon } from './ComingSoon'
 import { Logo } from './Logo'
 
 const links = [
@@ -14,7 +13,6 @@ const links = [
 
 export function Nav() {
   const { notice } = useContent()
-  const [soon, setSoon] = useState('')
   const [open, setOpen] = useState(false)
 
   return (
@@ -49,20 +47,12 @@ export function Nav() {
             ))}
           </nav>
           <div className="hidden items-center gap-2 md:flex">
-            <button
-              type="button"
-              className="rounded-full px-3 py-1.5 text-sm text-mute hover:text-ink"
-              onClick={() => setSoon('登录')}
+            <Link
+              to="/guide/getting-started"
+              className="rounded-full bg-volt px-4 py-1.5 text-sm font-medium text-white no-underline"
             >
-              登录
-            </button>
-            <button
-              type="button"
-              className="rounded-full bg-volt px-4 py-1.5 text-sm font-medium text-white"
-              onClick={() => setSoon('注册')}
-            >
-              注册
-            </button>
+              开始使用
+            </Link>
           </div>
           <button
             type="button"
@@ -86,14 +76,13 @@ export function Nav() {
                   {l.label}
                 </NavLink>
               ))}
-              <button type="button" className="text-left text-mute" onClick={() => setSoon('登录')}>
-                登录
-              </button>
+              <NavLink to="/guide/getting-started" className="text-ink no-underline" onClick={() => setOpen(false)}>
+                开始使用
+              </NavLink>
             </div>
           </div>
         ) : null}
       </div>
-      <ComingSoon open={Boolean(soon)} title={soon} onClose={() => setSoon('')} />
     </header>
   )
 }

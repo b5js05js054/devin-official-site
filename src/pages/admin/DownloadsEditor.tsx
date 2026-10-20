@@ -87,7 +87,7 @@ export function DownloadsEditor() {
         <div className="grid gap-3 md:grid-cols-2">
           <Field label="版本号" value={selected.version} onChange={(version) => setSelected({ ...selected, version })} />
           <Field
-            label="适配 Windsurf ≤"
+            label="平台"
             value={selected.windsurfMax}
             onChange={(windsurfMax) => setSelected({ ...selected, windsurfMax })}
           />

@@ -33,7 +33,7 @@ export function Downloads() {
       <div className="mx-auto max-w-5xl px-5 py-16">
         <h1 className="font-display text-4xl md:text-6xl">下载中心</h1>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-mute">
-          下载推荐客户端、按 Windsurf 版本查找适配包，或回退到已验证的历史版本。
+          这里只列已经核对过的客户端。安装包地址还没挂上，版本以实际安装包为准。Windows 客户端也有，未核对的版本号不写在这里。
         </p>
 
         <div className="mt-10 grid gap-4 lg:grid-cols-[1.4fr_0.8fr]">
@@ -42,9 +42,9 @@ export function Downloads() {
             <p className="mt-2 text-sm text-mute">三步完成接入。大多数情况直接下载推荐客户端即可。</p>
             <div className="mt-6 grid gap-3 md:grid-cols-3">
               {[
-                ['确认版本', '打开 Windsurf → 关于，记下当前版本号。'],
-                ['下载客户端', '优先下载推荐包；历史版本可在下方检索。'],
-                ['启动连接', '登录后在连接页启动工作环境。'],
+                ['安装客户端', '先装 Devin，再装对应系统的 Devin hub 客户端。'],
+                ['卡密激活', '在客户端激活。一卡一机，不在网页注册。'],
+                ['启动拦截', '启动本地拦截，确认 Devin 进程在运行。'],
               ].map(([title, desc], i) => (
                 <div key={title} className="rounded-2xl border border-line bg-paper p-4">
                   <p className="font-mono text-sm font-medium text-volt">{i + 1}</p>
@@ -63,7 +63,7 @@ export function Downloads() {
               <>
                 <p className="mt-6 font-display text-3xl">v{recommended.version}</p>
                 <p className="mt-2 text-xs text-mute">
-                  {recommended.size} · 适配 Windsurf ≤ {recommended.windsurfMax}
+                  {recommended.size} · {recommended.windsurfMax}
                 </p>
                 <p className="mt-1 text-xs text-mute">发布于 {recommended.releasedAt}</p>
                 <button
@@ -84,7 +84,7 @@ export function Downloads() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="font-display text-2xl">版本库</h2>
-              <p className="mt-1 text-sm text-mute">按 Windsurf 版本查找最贴合的客户端。</p>
+              <p className="mt-1 text-sm text-mute">按版本号或平台说明查找。</p>
             </div>
             <label className="flex items-center gap-2 rounded-full border border-line bg-paper px-3 py-2 text-sm">
               <Search size={14} className="text-mute" />
@@ -110,7 +110,8 @@ export function Downloads() {
                     ) : null}
                   </p>
                   <p className="mt-1 text-xs text-mute">
-                    发布于 {item.releasedAt} · 适配 Windsurf ≤ {item.windsurfMax}
+                    {item.releasedAt ? `发布于 ${item.releasedAt} · ` : ''}
+                    {item.windsurfMax}
                   </p>
                   {item.notes ? <p className="mt-1 text-xs text-mute">{item.notes}</p> : null}
                 </div>

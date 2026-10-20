@@ -2,13 +2,11 @@ import { ArrowRight, Check, Download, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ClientMock } from '../components/ClientMock'
-import { ComingSoon } from '../components/ComingSoon'
 import { StatBar } from '../components/StatBar'
 import { useContent } from '../lib/content'
 
 export function Home() {
   const { home } = useContent()
-  const [soon, setSoon] = useState(false)
   const [cap, setCap] = useState(home.capabilities[0]?.id ?? 'connect')
   const current = home.capabilities.find((c) => c.id === cap) ?? home.capabilities[0]
   const [openFaq, setOpenFaq] = useState(0)
@@ -30,14 +28,13 @@ export function Home() {
           <div>
             <p className="text-base leading-7 text-mute">{home.sub}</p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => setSoon(true)}
-                className="inline-flex items-center gap-2 rounded-full bg-volt px-5 py-2.5 text-sm font-medium text-white shadow-[0_8px_24px_-8px_rgb(36_70_255/0.6)] transition hover:-translate-y-px hover:bg-[#1a38e0]"
+              <Link
+                to="/downloads"
+                className="inline-flex items-center gap-2 rounded-full bg-volt px-5 py-2.5 text-sm font-medium text-white no-underline shadow-[0_8px_24px_-8px_rgb(36_70_255/0.6)] transition hover:-translate-y-px hover:bg-[#1a38e0]"
               >
                 <Download size={16} />
                 {home.ctaPrimary}
-              </button>
+              </Link>
               <Link
                 to="/pricing"
                 className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-5 py-2.5 text-sm text-ink no-underline hover:border-ink/30"
@@ -46,7 +43,7 @@ export function Home() {
                 <ArrowRight size={16} />
               </Link>
             </div>
-            <p className="mt-4 text-xs text-mute">支持 Windows 10 / 11 和 macOS</p>
+            <p className="mt-4 text-xs text-mute">Windows 与 macOS 客户端。拦截的是 Devin。</p>
           </div>
         </div>
         <div className="px-5 pb-16">
@@ -71,7 +68,7 @@ export function Home() {
                   cap === c.id ? 'bg-ink font-medium text-paper' : 'text-mute hover:bg-sunk hover:text-ink'
                 }`}
               >
-                {c.id === 'connect' ? '稳定连接' : c.id === 'usage' ? '透明用量' : '统一管理'}
+                {c.id === 'connect' ? '本地拦截' : c.id === 'usage' ? '卡密结算' : '目录计价'}
               </button>
             ))}
           </div>
@@ -133,7 +130,6 @@ export function Home() {
           </Link>
         </div>
       </section>
-      <ComingSoon open={soon} title="下载客户端" onClose={() => setSoon(false)} />
     </div>
   )
 }

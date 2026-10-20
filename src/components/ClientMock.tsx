@@ -5,18 +5,16 @@ import {
   LayoutGrid,
   Play,
   Settings,
-  Store,
+  Ticket,
   UserRound,
-  Wallet,
 } from 'lucide-react'
 import { useState } from 'react'
-import { useContent } from '../lib/content'
 
 const tabs = [
   { id: 'account', label: '账号', icon: UserRound },
   { id: 'connect', label: '连接', icon: Cable },
   { id: 'usage', label: '用量', icon: Activity },
-  { id: 'shop', label: '商城', icon: Store },
+  { id: 'topup', label: '充值', icon: Ticket },
   { id: 'settings', label: '设置', icon: Settings },
 ] as const
 
@@ -24,7 +22,6 @@ type TabId = (typeof tabs)[number]['id']
 
 export function ClientMock() {
   const [tab, setTab] = useState<TabId>('connect')
-  const { plans } = useContent()
 
   return (
     <div className="relative mx-auto max-w-5xl">
@@ -62,16 +59,12 @@ export function ClientMock() {
           {tab === 'account' ? <AccountPane /> : null}
           {tab === 'connect' ? <ConnectPane /> : null}
           {tab === 'usage' ? <UsagePane /> : null}
-          {tab === 'shop' ? (
-            <ShopPane
-              plans={plans.slice(0, 3).map((p) => ({ name: p.name, price: p.price }))}
-            />
-          ) : null}
+          {tab === 'topup' ? <TopupPane /> : null}
           {tab === 'settings' ? <SettingsPane /> : null}
         </div>
       </div>
       <p className="mt-4 text-center text-xs text-mute">
-        点击账号、连接、用量、商城与设置，体验与桌面端一致的导航。
+        示意客户端里的账号、拦截、用量和充值码。桌面端以实际安装包为准。
       </p>
     </div>
   )
@@ -81,9 +74,9 @@ function AccountPane() {
   return (
     <div className="grid gap-4 md:grid-cols-3">
       {[
-        ['账号', '登录后同步'],
-        ['钱包', '按量余额'],
-        ['今日用量', '从个人账本加载'],
+        ['卡密', '激活后可用'],
+        ['余额', '记在这张卡上'],
+        ['今日用量', '激活后加载'],
       ].map(([title, sub]) => (
         <div key={title} className="rounded-2xl border border-line bg-surface p-4">
           <p className="text-sm text-ink">{title}</p>
@@ -101,9 +94,9 @@ function ConnectPane() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="flex items-center gap-2 text-sm text-ink">
-              工作环境
+              本地拦截
               <span className="rounded-full bg-flare/15 px-2 py-0.5 text-[10px] text-flare">
-                登录后读取倍率
+                激活后读取计价
               </span>
             </p>
             <button
@@ -111,7 +104,7 @@ function ConnectPane() {
               className="mt-4 inline-flex items-center gap-2 rounded-full bg-volt px-4 py-2 text-sm text-white"
             >
               <Play size={14} />
-              启动工作环境
+              启动拦截
             </button>
           </div>
           <div className="space-y-2 text-right text-xs">
@@ -120,13 +113,12 @@ function ConnectPane() {
               <span className="rounded-full border border-line px-2 py-0.5">未运行</span>
             </p>
             <p className="flex items-center justify-end gap-2 text-mute">
-              Windsurf
+              Devin
               <span className="rounded-full border border-line px-2 py-0.5">未运行</span>
             </p>
             <p className="flex items-center justify-end gap-2 text-mute">
-              <Wallet size={12} />
-              ¥ --
-              <span className="text-flare">去充值</span>
+              卡密余额
+              <span className="text-flare">充值码</span>
             </p>
           </div>
         </div>
@@ -143,13 +135,13 @@ function UsagePane() {
     <div className="rounded-2xl border border-line bg-surface p-5">
       <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-ink">请求用量明细</p>
-        <span className="rounded-full bg-volt/15 px-2 py-0.5 text-[10px] text-volt">登录后加载</span>
+        <span className="rounded-full bg-volt/15 px-2 py-0.5 text-[10px] text-volt">激活后加载</span>
       </div>
       <div className="space-y-2">
-        {['模型请求进入', '主线路响应检查', '自动切换可用线路', '响应完成并结算'].map((row, i) => (
+        {['请求进入', '收费模型预检余额', '结束后按真实用量结算', '没有产出则不扣'].map((row) => (
           <div key={row} className="flex items-center justify-between rounded-xl bg-paper px-4 py-3 text-sm">
             <span className="text-ink">{row}</span>
-            <span className="font-mono text-[11px] text-mute">{i === 3 ? '已结清' : '示意'}</span>
+            <span className="font-mono text-[11px] text-mute">示意</span>
           </div>
         ))}
       </div>
@@ -157,21 +149,14 @@ function UsagePane() {
   )
 }
 
-function ShopPane({ plans }: { plans: { name: string; price: string }[] }) {
-  const items = plans.length ? plans : [
-    { name: '50', price: '¥50' },
-    { name: '100', price: '¥100' },
-    { name: '200', price: '¥200' },
-  ]
+function TopupPane() {
   return (
-    <div className="grid gap-3 md:grid-cols-3">
-      {items.map((p) => (
-        <div key={p.name} className="rounded-2xl border border-line bg-surface p-4">
-          <p className="text-sm text-ink">充值 {p.name}</p>
-          <p className="mt-3 font-display text-2xl text-volt">{p.price}</p>
-          <p className="mt-3 text-xs text-mute">1:1 到账钱包，按量扣除</p>
-        </div>
-      ))}
+    <div className="max-w-md rounded-2xl border border-line bg-surface p-5">
+      <p className="text-sm text-ink">给当前卡密加余额</p>
+      <p className="mt-2 text-xs leading-5 text-mute">输入充值码，加到这张卡上。没有固定金额档。</p>
+      <div className="mt-4 rounded-xl border border-dashed border-line px-4 py-3 font-mono text-sm text-mute">
+        TP-····
+      </div>
     </div>
   )
 }
@@ -181,7 +166,7 @@ function SettingsPane() {
     <div className="space-y-3 text-sm">
       <div className="flex items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3">
         <span>关于 Devin hub</span>
-        <span className="font-mono text-xs text-mute">v1.0.0</span>
+        <span className="font-mono text-xs text-mute">v1.2.7</span>
       </div>
       <div className="flex items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3">
         <span>复制连接日志</span>

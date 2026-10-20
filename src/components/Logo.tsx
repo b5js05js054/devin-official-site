@@ -15,7 +15,7 @@ export function Logo({ to = '/', compact = false }: { to?: string; compact?: boo
         <span className="block font-display text-[17px]">Devin hub</span>
         {!compact ? (
           <span className="mt-0.5 block text-[11px] text-mute">
-            Windsurf
+            Devin
           </span>
         ) : null}
       </span>

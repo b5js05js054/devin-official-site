@@ -5,135 +5,103 @@ export const BRAND = 'Devin hub'
 export const DEFAULT_CONTENT: SiteContent = {
   notice: {
     enabled: true,
-    text: 'Devin hub 客户端现已支持 Windows 与 macOS',
+    text: 'Devin hub 客户端覆盖 Windows 与 macOS，当前已发布 macOS 1.2.7',
     href: '/downloads',
   },
   home: {
-    kicker: '为 Windsurf / Devin 提供稳定、透明的模型访问',
+    kicker: '给 Devin 桌面端接上可核对的模型与用量',
     headline: '不换编辑器，',
-    highlight: '按用量把账算清楚。',
-    sub: '在 Windsurf 里继续原来的工作方式。Devin hub 负责连接、模型调度和用量结算。钱包充值，按 Token × 倍率扣费，没有产出不扣。',
-    ctaPrimary: '下载 Windows 客户端',
+    highlight: '日卡，或按量。',
+    sub: '继续用 Devin。免费模型走日卡，无限额度，按天计算。收费模型按用量从余额扣，没有产出不扣。',
+    ctaPrimary: '查看客户端',
     ctaSecondary: '查看计费',
     stats: [
-      { value: '按量', label: '充多少用多少' },
-      { value: '× 倍率', label: '按模型结算' },
-      { value: '0', label: '免费模型不预检' },
-      { value: '1:1', label: '充值到钱包' },
+      { value: '日卡', label: '免费模型无限额度' },
+      { value: '按天', label: '到期即止' },
+      { value: '按量', label: '收费模型按用量扣' },
+      { value: '余额', label: '用多少扣多少' },
     ],
     capabilities: [
       {
         id: 'connect',
-        title: '请求不停在一个失败节点',
-        desc: '上游走 HTTP/2 多路复用与探活。排队超时、平滑重启、进行中的对话都可以被说清楚，而不是静默断掉。',
-        points: ['线路状态持续可见', '并发排队与超时可配置', '平滑重启不丢进行中的对话'],
+        title: '本机拦截，退出就恢复',
+        desc: '客户端把目标域名指到本机，用自带证书终止 HTTPS，再转到 Devin hub 中继。拦截的是 Devin。退出时恢复 hosts，并卸掉这次装上的根证书。',
+        points: ['启动后本地拦截与 Devin 进程状态可见', '排队超时、并发上限可配置', '中继平滑重启会等进行中的对话结束'],
       },
       {
         id: 'usage',
-        title: '知道每次请求去了哪里、花了多少',
-        desc: '高级模型先预检钱包余额，结束后按真实 token 结算。输入、输出、缓存读写分开记账；没产出不扣费。',
-        points: ['费用 = Token × 当时倍率', '余额不足在转发前拒绝', '结算按 request_id 幂等，不重复扣'],
+        title: '日卡无限，按量才扣余额',
+        desc: '日卡覆盖免费模型，额度不按 token 扣，有效期一天。收费模型走按量，转发前看余额，结束后按真实用量扣除。',
+        points: ['日卡到期后免费模型停止', '按量余额不足会在转发前拒绝', '没有任何产出不扣费'],
       },
       {
         id: 'manage',
-        title: '把账号、模型和钱包放回一处',
-        desc: '卡密进门，模型目录和倍率由后台同步。官方通道与 OpenAI / Anthropic 兼容渠道按模型分流。',
-        points: ['钱包余额连续结算', '倍率改完下次请求生效', '内容审核挡在扣费之前'],
+        title: '卡密、模型和计价在一处',
+        desc: '用卡密激活，一卡一机。模型目录、单价和倍率由管理后台下发。官方 swe-* 走原协议，其余模型名按渠道地址走 OpenAI 或 Anthropic 兼容接口。',
+        points: ['充值用充值码，加到这张卡的余额', '改价后下次请求按新规则结算', '内容审核挡在扣费之前'],
       },
     ],
     faqs: [
       {
         q: '开始使用需要做什么？',
-        a: '下载 Devin hub 客户端并登录，给钱包充值（免费模型可不充），在连接页启动工作环境，然后照常打开 Windsurf。',
+        a: '安装 Devin hub 客户端，用卡密激活。只用免费模型可以先不充值。在客户端启动本地拦截，确认 Devin 处于运行中，然后在 Devin 里选目录中的模型。',
       },
       {
         q: '怎么计费？',
-        a: '按用量计费，不是包月套餐。高级模型：转发前预检余额，请求结束后按真实 Token × 当时倍率从钱包扣除。倍率为 0 的模型免费放行。',
+        a: '两类。日卡：免费模型，无限额度，按天。按量计费：收费模型按用量从余额扣，用多少扣多少。',
       },
       {
         q: '最终费用怎么算？',
-        a: '输入 token、输出 token、缓存读写，乘以该模型当时的倍率。没有产出不扣费；上游没给 usage 时按已产出内容估算并标记。',
+        a: '日卡不按 token 扣。按量按实际用量从余额扣，没有产出不扣。余额不够时，收费模型在转发前拒绝。',
       },
       {
-        q: '充值是订阅吗？',
-        a: '不是。充值进入钱包，用多少扣多少，不是按月清零的 Lite / Pro / Max 套餐。',
+        q: '日卡和按量怎么选？',
+        a: '只用免费模型，买日卡，无限额度，当天有效。要用收费模型，走按量，余额用完再充。',
       },
       {
-        q: '本地代理做什么？',
-        a: '客户端在本机承接 Windsurf 的请求并转到 Devin hub 中继。连接页会展示本地代理与 Windsurf 进程状态。退出客户端后不再转发。',
+        q: '本地拦截做什么？',
+        a: '运行时改 hosts，把 Devin 的请求接到本机，再转到中继。页面上能看到本地拦截和 Devin 进程状态。退出客户端后恢复 hosts，不再转发。',
       },
       {
         q: '支持哪些系统？',
-        a: '目前提供 Windows 10 / 11 64 位安装包，以及同时覆盖 Apple 芯片与 Intel 的 macOS 通用包。',
+        a: '客户端有 Windows 和 macOS。已核对的发布记录是 macOS 通用包 1.2.7。安装包地址还没挂到下载页，版本以实际安装包为准。',
       },
     ],
-    downloadTitle: '下载 Devin hub，从一个清楚的连接开始。',
-    downloadSub: '安装后登录并给钱包充值，再从连接页启动 Windsurf。',
+    downloadTitle: '先装客户端，再用卡密把连接打开。',
+    downloadSub: '激活后启动本地拦截。收费模型不够余额时，用充值码给这张卡加余额。',
   },
   plans: [
     {
       id: 1,
-      slug: 'c50',
-      name: '50',
-      badge: '入门',
-      price: '¥50',
-      period: '',
+      slug: 'day-pass',
+      name: '日卡',
+      badge: '免费模型',
+      price: '无限额度',
+      period: '按天',
       officialPrice: '',
       officialLabel: '',
-      description: '到账钱包，按量扣除',
-      features: ['充值进入钱包，不是包月', '按 Token × 倍率结算', '免费模型不扣这档余额', '够日常试跑连接'],
-      quotas: [{ label: '到账', value: '¥50', note: '1:1 入账' }],
+      description: '当天有效，到期即止。',
+      features: ['只含免费模型', '额度不按 token 扣', '有效期一天'],
+      quotas: [],
       highlighted: false,
       published: true,
       sort: 1,
     },
     {
       id: 2,
-      slug: 'c100',
-      name: '100',
-      badge: '',
-      price: '¥100',
+      slug: 'usage',
+      name: '按量计费',
+      badge: '收费模型',
+      price: '用多少扣多少',
       period: '',
       officialPrice: '',
       officialLabel: '',
-      description: '常用充值档',
-      features: ['充值进入钱包，不是包月', '按 Token × 倍率结算', '余额跨请求累计', '不够再续充即可'],
-      quotas: [{ label: '到账', value: '¥100', note: '1:1 入账' }],
-      highlighted: false,
-      published: true,
-      sort: 2,
-    },
-    {
-      id: 3,
-      slug: 'c200',
-      name: '200',
-      badge: '常用',
-      price: '¥200',
-      period: '',
-      officialPrice: '',
-      officialLabel: '',
-      description: '主力充值档',
-      features: ['充值进入钱包，不是包月', '适合持续开发', '高级模型走预检 + 结算', '明细可在用量页回看'],
-      quotas: [{ label: '到账', value: '¥200', note: '1:1 入账' }],
+      description: '按实际用量从余额扣除。',
+      features: ['余额记在卡密上', '余额不足，转发前拒绝', '没有产出不扣'],
+      quotas: [],
       highlighted: true,
       published: true,
-      sort: 3,
-    },
-    {
-      id: 4,
-      slug: 'c500',
-      name: '500',
-      badge: '',
-      price: '¥500',
-      period: '',
-      officialPrice: '',
-      officialLabel: '',
-      description: '重度使用',
-      features: ['充值进入钱包，不是包月', '长思考与高倍率模型更从容', '用不完留在钱包', '结算失败会重放，不重复扣'],
-      quotas: [{ label: '到账', value: '¥500', note: '1:1 入账' }],
-      highlighted: false,
-      published: true,
-      sort: 4,
+      sort: 2,
     },
   ],
   rates: [
@@ -141,8 +109,8 @@ export const DEFAULT_CONTENT: SiteContent = {
       id: 1,
       name: 'swe-* 官方通道',
       kind: '官方',
-      ratio: '0',
-      note: '后台未下发倍率时视为免费，不预检、不扣钱包',
+      ratio: '未标价则免费',
+      note: '目录没下发倍率时不预检、不扣余额',
       published: true,
       sort: 1,
     },
@@ -151,25 +119,25 @@ export const DEFAULT_CONTENT: SiteContent = {
       name: '目录中倍率为 0 的模型',
       kind: '免费',
       ratio: '0',
-      note: '预检直接放行，零网络开销',
+      note: '预检直接放行',
       published: true,
       sort: 2,
     },
     {
       id: 3,
-      name: '第三方 / 高级模型',
-      kind: '按量',
-      ratio: '后台配置',
-      note: '转发前预检余额，结束后按真实 Token × 当时倍率扣费',
+      name: '非 swe 模型',
+      kind: '第三方',
+      ratio: '按模型配置',
+      note: '走 OpenAI 或 Anthropic 兼容渠道；没下发倍率时仍会预检，不视为免费',
       published: true,
       sort: 3,
     },
     {
       id: 4,
-      name: '缓存读写 token',
-      kind: '按量',
-      ratio: '计入用量',
-      note: '输入含 cache_read / cache_write，与输出一并上报结算',
+      name: '缓存 token',
+      kind: '明细',
+      ratio: '含在输入里',
+      note: '结算用的输入已包含缓存命中。缓存读写另报，不在输入之外再加一次。官方通道目前只解析到缓存读取',
       published: true,
       sort: 4,
     },
@@ -177,27 +145,15 @@ export const DEFAULT_CONTENT: SiteContent = {
   downloads: [
     {
       id: 1,
-      version: '1.0.0',
-      windsurfMax: '1.2.0',
-      size: '48.6 MB',
+      version: '1.2.7',
+      windsurfMax: 'macOS 通用包',
+      size: '以安装包为准',
       url: '',
-      notes: '当前推荐。覆盖连接、账号、用量与钱包。',
+      notes: '已核对的最新 macOS 发布。拦截 Devin，退出后恢复 hosts。安装包地址尚未挂到本页。',
       recommended: true,
       published: true,
-      releasedAt: '2026-10-12',
+      releasedAt: '2026-10-16',
       sort: 1,
-    },
-    {
-      id: 2,
-      version: '0.9.4',
-      windsurfMax: '1.1.8',
-      size: '46.2 MB',
-      url: '',
-      notes: '上一稳定版，适合尚未升级 Windsurf 的环境。',
-      recommended: false,
-      published: true,
-      releasedAt: '2026-09-28',
-      sort: 2,
     },
   ],
   docs: [
@@ -208,9 +164,9 @@ export const DEFAULT_CONTENT: SiteContent = {
       title: 'Devin hub 是什么',
       published: true,
       sort: 1,
-      body: `Devin hub 是面向 Windsurf / Devin 的连接与用量管理平台。你继续在编辑器里写代码，客户端负责本地连接，中继负责鉴权、模型分流、审核与结算。
+      body: `Devin hub 是 Devin 桌面端的连接与用量管理。你继续在 Devin 里写代码。客户端负责本机拦截，中继负责鉴权、模型分流、审核与结算。
 
-计费是钱包按量，不是 Cursor 那种官方月费套餐的折扣仿品，也不是 Lite / Pro / Max 包月档。充值进入钱包，用多少扣多少。`,
+模型协议沿用官方 swe-*。计费扣的是卡密余额，不是网页上的月费套餐，也没有固定金额的充值档。`,
     },
     {
       id: 2,
@@ -219,14 +175,13 @@ export const DEFAULT_CONTENT: SiteContent = {
       title: '开始使用需要做什么',
       published: true,
       sort: 2,
-      body: `1. 安装 Windsurf，在「关于」里记下当前版本号。
-2. 到下载中心取与该版本匹配的 Devin hub 客户端。
-3. 打开客户端并登录。
-4. 给钱包充值（若只用免费模型可先不充）。
-5. 在连接页启动工作环境，确认本地代理与 Windsurf 均为运行中。
-6. 回到 Windsurf 选择目录里的模型，正常对话即可。
+      body: `1. 安装 Devin，并安装对应系统的 Devin hub 客户端。
+2. 打开客户端，用卡密激活。授权与本机绑定，一卡一机。
+3. 只用免费模型可以先不充值。收费模型余额不够时，在客户端用充值码给这张卡加余额。
+4. 启动本地拦截，确认拦截已运行、Devin 进程在运行。
+5. 回到 Devin，选择目录里的模型，正常对话。
 
-退出 Devin hub 后，转发会停止。`,
+退出客户端后会恢复 hosts，转发停止。`,
     },
     {
       id: 3,
@@ -235,28 +190,24 @@ export const DEFAULT_CONTENT: SiteContent = {
       title: '计费规则说明',
       published: true,
       sort: 3,
-      body: `Devin hub 按用量计费。
+      body: `Devin hub 有两类：
 
-**公式：** 费用 =（输入 + 输出 + 缓存读写）Token × 该模型当时的倍率。
+**日卡。** 免费模型，无限额度，按天计算。到期后免费模型停止。
 
-- 倍率为 0，或官方 swe-* 且目录没下发倍率 → 免费，预检直接放行。
-- 其余模型在排队前预检钱包；余额不足拒绝，不占并发槽、不到上游。
-- 请求结束后按真实 usage 结算。没有产出不扣费。
-- 倍率在运营后台改完，下一次请求立即生效，中继不用重启。
-- 上报失败会重试并落盘重放，按 request_id 幂等，不会重复扣。
+**按量计费。** 收费模型按实际用量从余额扣除。余额不足时，转发前拒绝。请求没有产出，不扣余额。
 
-充值是往钱包加余额，不是购买月度套餐。`,
+按量余额用充值码加到当前卡密上。`,
     },
     {
       id: 4,
       groupName: '接入',
-      slug: 'windsurf',
-      title: '如何在 Windsurf 里使用',
+      slug: 'devin',
+      title: '如何在 Devin 里使用',
       published: true,
       sort: 4,
-      body: `完成准备工作后，在 Devin hub 客户端连接页启动工作环境。
+      body: `在 Devin hub 客户端启动本地拦截。客户端会改 hosts，并把本次使用的根证书装上；退出时恢复 hosts、卸掉证书。
 
-Windsurf 保持原样。模型列表以客户端 / 后台目录为准。若所选模型已被下线，中继会直接提示重新选择，而不是静默落到别的模型。`,
+Devin 本身不用改配置。模型列表以客户端同步的后台目录为准。所选模型若已下线，中继会直接提示重新选择，不会静默换成别的模型。`,
     },
     {
       id: 5,
@@ -265,9 +216,11 @@ Windsurf 保持原样。模型列表以客户端 / 后台目录为准。若所�
       title: '官方通道与第三方渠道',
       published: true,
       sort: 5,
-      body: `官方通道处理 Windsurf 协议请求。名称落在第三方目录里的模型，会改走 OpenAI chat.completions 或 Anthropic Messages。
+      body: `官方 swe-* 走原来的协议。模型名不是 swe-* 时，改走第三方渠道。
 
-渠道地址以 \`/v1/messages\` 结尾时按 Anthropic 处理，以 \`/v1/chat/completions\` 结尾时按 OpenAI 处理。思考流、工具调用、自动续答和用量统计在中继内部统一后再回给编辑器。`,
+渠道地址以 \`/v1/messages\` 结尾时按 Anthropic 处理，以 \`/v1/chat/completions\` 结尾时按 OpenAI 处理。思考、工具调用和用量在中继内部整理后再回给 Devin。
+
+中继上游默认是一条 HTTP/2 连接，带探活。这不是多线路自动切换。`,
     },
     {
       id: 6,
@@ -276,11 +229,15 @@ Windsurf 保持原样。模型列表以客户端 / 后台目录为准。若所�
       title: '使用前可能想确认的事',
       published: true,
       sort: 6,
-      body: `**是不是包月 Pro / Max？** 不是。钱包按量，费用由 Token 和倍率决定。
+      body: `**怎么收费？** 日卡是免费模型无限额度，按天。按量是收费模型，用多少扣多少。
 
-**长思考会不会被当成卡死？** 默认只按「完全无数据」的读超时判断，避免把少量保活帧的推理误杀。
+**网页能注册账号吗？** 不能。激活和充值都在客户端里完成。
 
-**审核命中会怎样？** 在余额预检和排队之前拦截，不扣费、不到上游。`,
+**长思考会不会被当成卡死？** 停滞检测默认关闭。默认只按一段时间完全没有数据来判断读超时。
+
+**审核命中会怎样？** 在余额预检和排队之前拦截，不扣费、不到上游。
+
+**后台挂了会怎样？** 收费模型预检失败会拒绝转发。已经同步过的模型目录会暂时沿用上一次结果。`,
     },
   ],
 }

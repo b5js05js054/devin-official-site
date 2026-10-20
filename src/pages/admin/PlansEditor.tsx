@@ -61,7 +61,7 @@ export function PlansEditor() {
 
   async function remove() {
     if (!selected?.id) return
-    if (!confirm(`删除充值档「${selected.name}」？`)) return
+    if (!confirm(`删除计费方式「${selected.name}」？`)) return
     await api(`/api/admin/plans/${selected.id}`, { method: 'DELETE' })
     setSelected(null)
     await reload()
@@ -70,8 +70,8 @@ export function PlansEditor() {
   return (
     <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
       <div>
-        <h1 className="font-display text-3xl">充值档</h1>
-        <p className="mt-2 text-sm text-mute">到账金额，不是包月周期。</p>
+        <h1 className="font-display text-3xl">计费方式</h1>
+        <p className="mt-2 text-sm text-mute">展示规则，不是固定充值金额。</p>
         <button
           type="button"
           className="mt-4 text-sm text-volt"
@@ -169,7 +169,7 @@ export function PlansEditor() {
           ) : null}
         </div>
       ) : (
-        <p className="text-sm text-mute">选择左侧充值档，或新建。</p>
+        <p className="text-sm text-mute">选择左侧计费方式，或新建。</p>
       )}
     </div>
   )

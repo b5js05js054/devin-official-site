@@ -20,7 +20,7 @@ export function ComingSoon({
         <p className="text-sm font-medium text-flare">即将开放</p>
         <h3 className="mt-2 font-display text-2xl">{title}</h3>
         <p className="mt-3 text-sm leading-6 text-mute">
-          用户注册、登录与充值会接到现有卡密与钱包系统。这一期官网先把计费规则、下载和文档讲清楚。
+          激活和充值都在 Devin hub 客户端里完成：卡密进门，充值码加到这张卡的余额。网页不提供注册，也不卖固定金额档。
         </p>
         <button
           type="button"

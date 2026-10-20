@@ -50,7 +50,7 @@ export function RatesEditor() {
   return (
     <div>
       <h1 className="font-display text-3xl">模型倍率</h1>
-      <p className="mt-2 text-sm text-mute">展示在计费页。中继实际扣费以登录后同步的模型目录为准。</p>
+      <p className="mt-2 text-sm text-mute">展示在计费页。实际单价以客户端激活后同步的模型目录为准。</p>
       <button type="button" className="mt-4 text-sm text-volt" onClick={addRow}>
         + 新增一行
       </button>

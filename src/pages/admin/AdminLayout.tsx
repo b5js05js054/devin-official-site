@@ -6,7 +6,7 @@ import { api } from '../../lib/api'
 const items = [
   { to: '/admin/home', label: '首页文案' },
   { to: '/admin/notice', label: '顶栏公告' },
-  { to: '/admin/plans', label: '充值档' },
+  { to: '/admin/plans', label: '计费方式' },
   { to: '/admin/rates', label: '模型倍率' },
   { to: '/admin/downloads', label: '下载' },
   { to: '/admin/docs', label: '文档' },
