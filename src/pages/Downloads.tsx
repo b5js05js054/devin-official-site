@@ -33,7 +33,7 @@ export function Downloads() {
       <div className="mx-auto max-w-5xl px-5 py-16">
         <h1 className="font-display text-4xl md:text-6xl">下载中心</h1>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-mute">
-          这里只列已经核对过的客户端。安装包地址还没挂上，版本以实际安装包为准。Windows 客户端也有，未核对的版本号不写在这里。
+          这里只列已经核对过的客户端，安装包统一从 gx.08879.cn 下载。Windows 客户端也有，未核对的版本号不写在这里。
         </p>
 
         <div className="mt-10 grid gap-4 lg:grid-cols-[1.4fr_0.8fr]">
@@ -42,7 +42,7 @@ export function Downloads() {
             <p className="mt-2 text-sm text-mute">三步完成接入。大多数情况直接下载推荐客户端即可。</p>
             <div className="mt-6 grid gap-3 md:grid-cols-3">
               {[
-                ['安装客户端', '先装 Devin，再装对应系统的 Devin hub 客户端。'],
+                ['安装客户端', '先装 Devin，再装对应系统的 DevinHub 客户端。'],
                 ['卡密激活', '在客户端激活。一卡一机，不在网页注册。'],
                 ['启动拦截', '启动本地拦截，确认 Devin 进程在运行。'],
               ].map(([title, desc], i) => (

@@ -8,7 +8,7 @@ export function Footer() {
         <div className="md:col-span-1">
           <Logo />
           <p className="mt-4 max-w-xs text-sm leading-6 text-mute">
-            Devin hub 给 Devin 桌面端提供连接、模型调度和卡密余额结算。请求过程可回看。
+            DevinHub 给 Devin 桌面端提供连接、模型调度和卡密余额结算。请求过程可回看。
           </p>
         </div>
         <div>
@@ -60,7 +60,7 @@ export function Footer() {
       </div>
       <div className="border-t border-line">
         <p className="mx-auto max-w-6xl px-5 py-5 text-xs text-mute">
-          © {new Date().getFullYear()} Devin hub · 计费说明与下载信息可在内容后台修改
+          © {new Date().getFullYear()} DevinHub · 计费说明与下载信息可在内容后台修改
         </p>
       </div>
     </footer>

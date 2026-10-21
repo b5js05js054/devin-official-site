@@ -1,6 +1,10 @@
 import cookie from '@fastify/cookie'
 import cors from '@fastify/cors'
-import { createHmac, timingSafeEqual } from 'node:crypto'
+import multipart from '@fastify/multipart'
+import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import Fastify from 'fastify'
 import {
   deleteDoc,
@@ -21,6 +25,27 @@ const ADMIN_USER = process.env.ADMIN_USER || 'admin'
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'bailan-admin'
 const SESSION_SECRET = process.env.SESSION_SECRET || 'bailan-cms-dev-secret-change-me'
 const COOKIE = 'bl_admin'
+
+const dataDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'data')
+const uploadsDir = join(dataDir, 'uploads')
+mkdirSync(uploadsDir, { recursive: true })
+
+const IMAGE_TYPES: Record<string, string> = {
+  'image/png': '.png',
+  'image/jpeg': '.jpg',
+  'image/webp': '.webp',
+  'image/gif': '.gif',
+  'image/avif': '.avif',
+}
+
+const MIME_BY_EXT: Record<string, string> = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+  '.avif': 'image/avif',
+}
 
 seedIfEmpty()
 
@@ -54,9 +79,10 @@ function safeEqual(a: string, b: string) {
   return timingSafeEqual(left, right)
 }
 
-const app = Fastify({ logger: true })
+const app = Fastify({ logger: true, bodyLimit: 12 * 1024 * 1024 })
 await app.register(cors, { origin: true, credentials: true })
 await app.register(cookie)
+await app.register(multipart, { limits: { fileSize: 8 * 1024 * 1024, files: 1 } })
 
 function requireAdmin(req: { cookies?: Record<string, string> }) {
   const user = readUser(req.cookies?.[COOKIE])
@@ -157,11 +183,47 @@ app.delete('/api/admin/docs/:id', async (req) => {
   return { ok: true }
 })
 
+app.post('/api/admin/uploads', async (req, reply) => {
+  requireAdmin(req)
+  const file = await req.file()
+  if (!file) {
+    reply.code(400)
+    return { error: '没有收到文件' }
+  }
+  const ext = IMAGE_TYPES[file.mimetype]
+  if (!ext) {
+    reply.code(400)
+    return { error: '只支持 PNG、JPG、WebP、GIF、AVIF 图片' }
+  }
+  const buffer = await file.toBuffer()
+  const name = `${Date.now()}-${randomUUID().slice(0, 8)}${ext}`
+  writeFileSync(join(uploadsDir, name), buffer)
+  return { url: `/api/uploads/${name}`, name }
+})
+
+app.get('/api/uploads/:name', async (req, reply) => {
+  const { name } = req.params as { name: string }
+  if (!/^[A-Za-z0-9._-]+$/.test(name)) {
+    reply.code(400)
+    return { error: '文件名不合法' }
+  }
+  try {
+    const buffer = readFileSync(join(uploadsDir, name))
+    const dot = name.lastIndexOf('.')
+    const ext = dot >= 0 ? name.slice(dot).toLowerCase() : ''
+    reply.type(MIME_BY_EXT[ext] ?? 'application/octet-stream')
+    return reply.send(buffer)
+  } catch {
+    reply.code(404)
+    return { error: '文件不存在' }
+  }
+})
+
 app.setErrorHandler((err, _req, reply) => {
   const status = (err as { statusCode?: number }).statusCode || 500
   reply.code(status).send({ error: err.message || '服务器错误' })
 })
 
 await app.listen({ port: PORT, host: '127.0.0.1' })
-console.log(`Devin hub 内容 API  http://127.0.0.1:${PORT}`)
+console.log(`DevinHub 内容 API  http://127.0.0.1:${PORT}`)
 console.log(`管理员 ${ADMIN_USER} / ${ADMIN_PASSWORD === 'bailan-admin' ? 'bailan-admin（请尽快改环境变量）' : '（已自定义）'}`)

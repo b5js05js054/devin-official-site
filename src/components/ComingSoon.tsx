@@ -20,7 +20,7 @@ export function ComingSoon({
         <p className="text-sm font-medium text-flare">即将开放</p>
         <h3 className="mt-2 font-display text-2xl">{title}</h3>
         <p className="mt-3 text-sm leading-6 text-mute">
-          激活和充值都在 Devin hub 客户端里完成：卡密进门，充值码加到这张卡的余额。网页不提供注册，也不卖固定金额档。
+          激活和充值都在 DevinHub 客户端里完成：卡密进门，充值码加到这张卡的余额。网页不提供注册，也不卖固定金额档。
         </p>
         <button
           type="button"

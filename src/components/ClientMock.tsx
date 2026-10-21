@@ -29,7 +29,7 @@ export function ClientMock() {
         <div className="flex items-center gap-4 border-b border-line px-4 py-3">
           <div className="flex shrink-0 items-center gap-2 text-ink">
             <LayoutGrid size={16} className="text-volt" />
-            <span className="text-sm font-medium">Devin hub</span>
+            <span className="text-sm font-medium">DevinHub</span>
           </div>
           <nav className="flex flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none]">
             {tabs.map((item) => {
@@ -165,7 +165,7 @@ function SettingsPane() {
   return (
     <div className="space-y-3 text-sm">
       <div className="flex items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3">
-        <span>关于 Devin hub</span>
+        <span>关于 DevinHub</span>
         <span className="font-mono text-xs text-mute">v1.2.7</span>
       </div>
       <div className="flex items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3">

@@ -1,11 +1,11 @@
 import type { SiteContent } from '../types'
 
-export const BRAND = 'Devin hub'
+export const BRAND = 'DevinHub'
 
 export const DEFAULT_CONTENT: SiteContent = {
   notice: {
     enabled: true,
-    text: 'Devin hub 客户端覆盖 Windows 与 macOS，当前已发布 macOS 1.2.7',
+    text: 'DevinHub 客户端覆盖 Windows 与 macOS，当前已发布 macOS 1.2.7',
     href: '/downloads',
   },
   home: {
@@ -25,7 +25,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       {
         id: 'connect',
         title: '本机拦截，退出就恢复',
-        desc: '客户端把目标域名指到本机，用自带证书终止 HTTPS，再转到 Devin hub 中继。拦截的是 Devin。退出时恢复 hosts，并卸掉这次装上的根证书。',
+        desc: '客户端把目标域名指到本机，用自带证书终止 HTTPS，再转到 DevinHub 中继。拦截的是 Devin。退出时恢复 hosts，并卸掉这次装上的根证书。',
         points: ['启动后本地拦截与 Devin 进程状态可见', '排队超时、并发上限可配置', '中继平滑重启会等进行中的对话结束'],
       },
       {
@@ -44,7 +44,7 @@ export const DEFAULT_CONTENT: SiteContent = {
     faqs: [
       {
         q: '开始使用需要做什么？',
-        a: '安装 Devin hub 客户端，用卡密激活。只用免费模型可以先不充值。在客户端启动本地拦截，确认 Devin 处于运行中，然后在 Devin 里选目录中的模型。',
+        a: '安装 DevinHub 客户端，用卡密激活。只用免费模型可以先不充值。在客户端启动本地拦截，确认 Devin 处于运行中，然后在 Devin 里选目录中的模型。',
       },
       {
         q: '怎么计费？',
@@ -64,7 +64,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       },
       {
         q: '支持哪些系统？',
-        a: '客户端有 Windows 和 macOS。已核对的发布记录是 macOS 通用包 1.2.7。安装包地址还没挂到下载页，版本以实际安装包为准。',
+        a: '客户端有 Windows 和 macOS。已核对的发布记录是 macOS 通用包 1.2.7。安装包在 https://gx.08879.cn/ 下载，版本以实际安装包为准。',
       },
     ],
     downloadTitle: '先装客户端，再用卡密把连接打开。',
@@ -148,8 +148,8 @@ export const DEFAULT_CONTENT: SiteContent = {
       version: '1.2.7',
       windsurfMax: 'macOS 通用包',
       size: '以安装包为准',
-      url: '',
-      notes: '已核对的最新 macOS 发布。拦截 Devin，退出后恢复 hosts。安装包地址尚未挂到本页。',
+      url: 'https://gx.08879.cn/',
+      notes: '已核对的最新 macOS 发布。拦截 Devin，退出后恢复 hosts。',
       recommended: true,
       published: true,
       releasedAt: '2026-10-16',
@@ -161,10 +161,10 @@ export const DEFAULT_CONTENT: SiteContent = {
       id: 1,
       groupName: '开始使用',
       slug: 'what-is-devinhub',
-      title: 'Devin hub 是什么',
+      title: 'DevinHub 是什么',
       published: true,
       sort: 1,
-      body: `Devin hub 是 Devin 桌面端的连接与用量管理。你继续在 Devin 里写代码。客户端负责本机拦截，中继负责鉴权、模型分流、审核与结算。
+      body: `DevinHub 是 Devin 桌面端的连接与用量管理。你继续在 Devin 里写代码。客户端负责本机拦截，中继负责鉴权、模型分流、审核与结算。
 
 模型协议沿用官方 swe-*。计费扣的是卡密余额，不是网页上的月费套餐，也没有固定金额的充值档。`,
     },
@@ -175,7 +175,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       title: '开始使用需要做什么',
       published: true,
       sort: 2,
-      body: `1. 安装 Devin，并安装对应系统的 Devin hub 客户端。
+      body: `1. 安装 Devin，并安装对应系统的 DevinHub 客户端。
 2. 打开客户端，用卡密激活。授权与本机绑定，一卡一机。
 3. 只用免费模型可以先不充值。收费模型余额不够时，在客户端用充值码给这张卡加余额。
 4. 启动本地拦截，确认拦截已运行、Devin 进程在运行。
@@ -190,7 +190,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       title: '计费规则说明',
       published: true,
       sort: 3,
-      body: `Devin hub 有两类：
+      body: `DevinHub 有两类：
 
 **日卡。** 免费模型，无限额度，按天计算。到期后免费模型停止。
 
@@ -205,7 +205,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       title: '如何在 Devin 里使用',
       published: true,
       sort: 4,
-      body: `在 Devin hub 客户端启动本地拦截。客户端会改 hosts，并把本次使用的根证书装上；退出时恢复 hosts、卸掉证书。
+      body: `在 DevinHub 客户端启动本地拦截。客户端会改 hosts，并把本次使用的根证书装上；退出时恢复 hosts、卸掉证书。
 
 Devin 本身不用改配置。模型列表以客户端同步的后台目录为准。所选模型若已下线，中继会直接提示重新选择，不会静默换成别的模型。`,
     },
