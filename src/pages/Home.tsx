@@ -1,14 +1,25 @@
-import { ArrowRight, Check, Download, Plus } from 'lucide-react'
+import { ArrowRight, Download, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ClientMock } from '../components/ClientMock'
 import { StatBar } from '../components/StatBar'
 import { useContent } from '../lib/content'
 
+const CAP_LABEL: Record<string, string> = {
+  connect: '本地拦截',
+  usage: '卡密结算',
+  manage: '目录计价',
+}
+
+function capLabel(item: { id: string; title: string }) {
+  return CAP_LABEL[item.id] ?? item.title
+}
+
 export function Home() {
   const { home } = useContent()
   const [cap, setCap] = useState(home.capabilities[0]?.id ?? 'connect')
   const current = home.capabilities.find((c) => c.id === cap) ?? home.capabilities[0]
+  const index = Math.max(0, home.capabilities.findIndex((c) => c.id === current?.id))
   const [openFaq, setOpenFaq] = useState(0)
 
   return (
@@ -55,38 +66,61 @@ export function Home() {
 
       <section className="mx-auto max-w-6xl px-5 py-20">
         <h2 className="max-w-2xl font-display text-3xl text-balance md:text-5xl">
-          不改变你的编辑器，只把后台过程说清楚
+          不换编辑器，把后台这三步说清楚
         </h2>
-        <div className="mt-12 grid gap-8 lg:grid-cols-[220px_1fr]">
-          <div className="flex gap-2 overflow-x-auto lg:flex-col">
-            {home.capabilities.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => setCap(c.id)}
-                className={`shrink-0 rounded-xl px-4 py-3 text-left text-sm transition ${
-                  cap === c.id ? 'bg-ink font-medium text-paper' : 'text-mute hover:bg-sunk hover:text-ink'
-                }`}
+        {current ? (
+          <div className="mt-12 overflow-hidden rounded-[28px] border border-line bg-surface">
+            <div className="grid lg:grid-cols-[220px_1fr]">
+              <div className="flex border-b border-line p-3 lg:border-r lg:border-b-0 lg:p-4 lg:pt-10" role="tablist" aria-label="后台过程">
+                <div className="relative w-full">
+                  <span
+                    aria-hidden
+                    className="absolute inset-x-0 top-0 h-14 rounded-2xl bg-paper ring-1 ring-line transition-transform duration-300 ease-[cubic-bezier(.22,1,.36,1)] motion-reduce:transition-none"
+                    style={{ transform: `translateY(${index * 56}px)` }}
+                  />
+                  {home.capabilities.map((c, i) => {
+                    const selected = c.id === current.id
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        role="tab"
+                        id={`cap-tab-${c.id}`}
+                        aria-selected={selected}
+                        aria-controls="cap-panel"
+                        onClick={() => setCap(c.id)}
+                        className={`relative flex h-14 w-full items-center gap-3 rounded-2xl px-4 text-left text-sm transition-colors ${
+                          selected ? 'font-medium text-ink' : 'text-mute hover:text-ink'
+                        }`}
+                      >
+                        <span className="w-6 font-mono text-xs text-volt tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                        {capLabel(c)}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+              <div
+                key={current.id}
+                id="cap-panel"
+                role="tabpanel"
+                aria-labelledby={`cap-tab-${current.id}`}
+                className="cap-in p-8 md:p-10"
               >
-                {c.id === 'connect' ? '本地拦截' : c.id === 'usage' ? '卡密结算' : '目录计价'}
-              </button>
-            ))}
-          </div>
-          {current ? (
-            <div className="rounded-3xl border border-line bg-surface p-8">
-              <h3 className="font-display text-3xl">{current.title}</h3>
-              <p className="mt-4 max-w-xl text-sm leading-7 text-mute">{current.desc}</p>
-              <ul className="mt-6 space-y-2 text-sm text-ink">
-                {current.points.map((p) => (
-                  <li key={p} className="flex gap-2">
-                    <Check size={16} className="mt-0.5 shrink-0 text-volt" />
-                    {p}
-                  </li>
-                ))}
-              </ul>
+                <h3 className="font-display text-3xl text-balance md:text-4xl">{current.title}</h3>
+                <p className="mt-4 max-w-2xl text-sm leading-7 text-mute">{current.desc}</p>
+                <ul className="mt-8 divide-y divide-line border-y border-line">
+                  {current.points.map((p, i) => (
+                    <li key={p} className="flex items-baseline gap-4 py-4 text-sm leading-6 text-ink">
+                      <span className="w-6 shrink-0 font-mono text-xs text-volt tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                      <span>{p}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
       </section>
 
       <section className="border-t border-line">

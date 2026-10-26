@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="night">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>白岚客户端</title>
+  <link rel="stylesheet" href="app.css?v=14">
+  <style>
+    html, body, .app-shell, .topbar, .workspace { background: #000 !important; }
+    body::before { display: none !important; }
+    html, body { height: 100%; margin: 0; }
+    .app-shell { height: 100%; }
+    .workspace { height: calc(100% - 66px); }
+    .page-scroll { overflow: auto; }
+    .license-chip-copy { width: auto; min-width: 0; max-width: none; gap: 6px; }
+    .license-chip-copy strong { display: inline; font: inherit; }
+    .hb-mini strong { width: auto; }
+    .status-board[data-state="idle"] { --state: var(--warn); }
+    .model-wall-empty { margin: 8px 4px 0; color: var(--muted); font-size: 13px; }
+    .log-line.is-new { animation: log-in .28s ease; }
+    .brand-mark.site-mark { padding: 0; background: #17282b; border-color: transparent; overflow: hidden; }
+    .brand-mark.site-mark svg { width: 30px; height: 30px; }
+    .profile-avatar.site-avatar { background: #17282b; }
+    .profile-avatar.site-avatar .avatar { display: block; }
+    .profile-avatar.site-avatar .avatar svg { width: 100%; height: 100%; display: block; }
+    .nav-indicator.is-hidden { opacity: 0; }
+    .profile-row-aside { transition: color .28s ease, opacity .18s ease, transform .32s cubic-bezier(.22, 1, .36, 1); }
+    @keyframes log-in { from { opacity: 0; transform: translateY(8px); } }
+  </style>
+</head>
+<body>
+<svg class="svg-sprite" aria-hidden="true">
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l2.4-7 4.3 14 2.5-7H21"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M5 3v18M12 3v18M19 3v18"/><path d="M2.5 8h5M9.5 15h5M16.5 7h5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5"/><path d="M19 12a7 7 0 1 0-1.7 4.6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7V5Z"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M4 5v5h5"/><path d="M5.5 15.5A8 8 0 1 0 6 7"/><path d="M12 8v5l3 2"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+  <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M6 7v4a2 2 0 0 0 2 2h8a2 2 0 0 1 2 2v2"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m11 12 8-8"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M14 7l5 5-5 5"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h3.5l2-5 4 11 2.5-6H21"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4.5 3 3L20 7"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></symbol>
+  <symbol id="i-site" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#17282b"/><path fill="#d8f0e8" fill-rule="evenodd" d="M32 8.25 52.57 20.12 52.57 43.88 32 55.75 11.43 43.88 11.43 20.12Z M32 16 45.86 24 45.86 40 32 48 18.14 40 18.14 24Z"/></symbol>
+  <symbol id="i-signout" viewBox="0 0 24 24"><path d="M10 7V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2v-2"/><path d="M15 12H4m0 0 3-3M4 12l3 3"/></symbol>
+  <symbol id="i-apps" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.8"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 1 1 18 0Z"/></symbol>
+  <symbol id="i-restore" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.4-6"/><path d="M3.5 4.5V9H8"/></symbol>
+</svg>
+
+<div class="app-shell is-top framed-app">
+  <header class="topbar">
+    <div class="brand" id="brandChip">
+      <button class="brand-mark site-mark" type="button" data-go="profile" aria-label="个人主页">
+        <svg viewBox="0 0 64 64"><use href="#i-site"/></svg>
+      </button>
+      <button class="brand-name" id="navUserName" type="button" data-go="profile">Devin</button>
+    </div>
+    <span class="nav-divider"></span>
+    <nav class="navigation">
+      <span class="nav-indicator" id="navIndicator" aria-hidden="true"></span>
+      <button class="nav-item active" type="button" data-route="home"><span class="nav-icon"><svg><use href="#i-grid"/></svg></span><span class="nav-copy"><strong>工作台</strong></span></button>
+      <button class="nav-item" type="button" data-route="models"><span class="nav-icon"><svg><use href="#i-route"/></svg></span><span class="nav-copy"><strong>模型选择</strong></span></button>
+      <button class="nav-item" type="button" data-route="usage"><span class="nav-icon"><svg><use href="#i-chart"/></svg></span><span class="nav-copy"><strong>用量</strong></span></button>
+      <button class="nav-item" type="button" data-route="log"><span class="nav-icon"><svg><use href="#i-activity"/></svg></span><span class="nav-copy"><strong>监控日志</strong></span></button>
+      <button class="nav-item" type="button" data-route="config"><span class="nav-icon"><svg><use href="#i-sliders"/></svg></span><span class="nav-copy"><strong>设置</strong></span></button>
+    </nav>
+    <span class="nav-divider"></span>
+    <div class="topbar-tools">
+      <button class="license-chip" type="button">
+        <svg><use href="#i-check"/></svg>
+        <span class="license-chip-copy"><span>30天</span><strong>¥128.00</strong></span>
+      </button>
+      <button class="hb-mini" id="hbMini" type="button" data-state="good" title="网络心跳：点击查看详情" aria-label="网络心跳">
+        <svg class="hb-mini-icon"><use href="#i-pulse"/></svg>
+        <strong id="hbMiniValue">120ms</strong>
+      </button>
+      <button class="theme-toggle" type="button" aria-label="夜间模式">
+        <span class="theme-toggle-icon"><svg><use href="#i-sun"/></svg></span>
+      </button>
+      <div class="win-controls">
+        <button class="win-btn" type="button" data-win="min" aria-label="最小化"><svg viewBox="0 0 10 10"><path d="M1 5h8"/></svg></button>
+        <button class="win-btn win-close" type="button" data-win="close" aria-label="关闭"><svg viewBox="0 0 10 10"><path d="m1 1 8 8M9 1 1 9"/></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="page active" id="page-home" data-page="home">
+      <div class="page-scroll">
+        <article class="status-board" id="statusBoard" data-state="idle">
+          <header class="deck-head">
+            <div class="deck-title">
+              <span class="deck-icon"><svg><use href="#i-route"/></svg></span>
+              <h2 id="captureTitle">本地拦截未开启</h2>
+              <span class="status-led"></span>
+            </div>
+            <div class="deck-aside">
+              <div class="chip-row">
+                <div id="chipRow"><span class="chip">claude-fable-5</span><span class="chip success">示例授权 · 剩 30 天</span></div>
+                <div class="chip-updated"><time id="updatedAt">更新 09:12:00</time><button class="icon-button" id="refreshStatusBtn" type="button" title="刷新状态" aria-label="刷新状态"><svg><use href="#i-refresh"/></svg></button></div>
+              </div>
+            </div>
+          </header>
+          <div class="deck-body">
+            <div class="deck-main">
+              <div class="control-buttons">
+                <button class="button control-primary" id="startProxyBtn" type="button"><svg><use href="#i-play"/></svg><span>启动拦截</span></button>
+                <button class="button control-secondary" id="stopProxyBtn" type="button" disabled><svg><use href="#i-stop"/></svg><span>停止拦截并关闭 Devin</span></button>
+              </div>
+              <label class="start-option"><span class="switch"><input type="checkbox" checked><span></span></span><span>启动后重启 Devin</span></label>
+            </div>
+            <aside class="status-side">
+              <div class="health-grid">
+                <div class="health-item"><div class="health-label"><span>应用级捕获</span></div><span class="badge danger" id="captureBadge">未运行</span></div>
+                <div class="health-item"><div class="health-label"><span>中继服务</span></div><span class="badge success">已连接</span></div>
+                <div class="health-item"><div class="health-label"><span>网络延迟</span></div><span class="badge success" id="latencyBadge">120 ms</span></div>
+              </div>
+            </aside>
+          </div>
+        </article>
+        <article class="panel log-preview-panel">
+          <div class="panel-header">
+            <div><h3><svg class="section-heading-icon"><use href="#i-terminal"/></svg>最近日志</h3></div>
+            <button class="inline-action" id="openLogsBtn" type="button">查看全部</button>
+          </div>
+          <div class="preview-lines" id="logPreview">
+            <div class="preview-line success"><span class="log-marker"></span><span class="log-text">[示例] 演示任务 #007 已完成 · 耗时 0.8s</span><time class="log-time">09:12:06</time></div>
+            <div class="preview-line relay"><span class="log-marker"></span><span class="log-text">[示例] 演示任务 #007 已进入队列</span><time class="log-time">09:12:04</time></div>
+            <div class="preview-line success"><span class="log-marker"></span><span class="log-text">[示例] 演示环境已就绪</span><time class="log-time">09:12:01</time></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="page" id="page-models" data-page="models">
+      <div class="page-scroll">
+        <article class="panel route-panel">
+          <div class="model-pin">
+            <div class="model-select-card">
+              <div class="model-select-main">
+                <span class="deck-icon"><svg><use href="#i-route"/></svg></span>
+                <div class="route-preview"><span>SWE-1.6</span><svg><use href="#i-arrow"/></svg><strong>claude-fable-5</strong><span class="billing-chip" id="routeBilling" data-tier="paid">高级 ×1.3</span></div>
+              </div>
+              <div class="model-options">
+                <div class="model-option"><span>思考强度</span><button class="pick-trigger" type="button"><span class="pick-value">default</span><svg><use href="#i-chevron"/></svg></button></div>
+                <div class="model-option"><span>上下文大小</span><button class="pick-trigger" type="button"><span class="pick-value">默认 (1M)</span><svg><use href="#i-chevron"/></svg></button></div>
+              </div>
+            </div>
+            <div class="model-toolbar">
+              <div class="segment-control model-tabs" id="modelTabs">
+                <button type="button" data-series="all" data-label="全部">全部</button>
+                <button class="active" type="button" data-series="claude" data-label="Claude 系列">Claude 系列</button>
+                <button type="button" data-series="mimo" data-label="小米 MiMo">小米 MiMo</button>
+                <button type="button" data-series="glm" data-label="GLM">GLM</button>
+                <button type="button" data-series="other" data-label="其他">其他</button>
+              </div>
+              <label class="model-free-toggle"><span class="switch"><input id="modelFreeOnly" type="checkbox"><span></span></span>仅免费</label>
+              <label class="search-box"><svg><use href="#i-search"/></svg><input id="modelSearch" type="search" placeholder="搜索模型名称或 ID"></label>
+            </div>
+          </div>
+          <div class="model-list">
+            <div class="model-wall" id="modelWall">
+              <button class="model-card selected" type="button"><span class="model-card-head"><strong>claude-fable-5</strong><span class="billing-chip">高级 ×1.3</span></span><span class="model-card-id">claude-fable-5</span><span class="model-card-caps">1M 上下文 · 输出 128K · 思考</span><svg class="model-card-check"><use href="#i-check"/></svg></button>
+              <button class="model-card" type="button"><span class="model-card-head"><strong>claude-fable-5-1</strong><span class="billing-chip">高级 ×1.3</span></span><span class="model-card-id">claude-fable-5-1</span><span class="model-card-caps">1M 上下文 · 输出 128K · 思考</span></button>
+              <button class="model-card" type="button"><span class="model-card-head"><strong>claude-haiku-4-5</strong><span class="billing-chip">高级 ×1.3</span></span><span class="model-card-id">claude-haiku-4-5-20251001</span><span class="model-card-caps">200K 上下文 · 思考</span></button>
+              <button class="model-card" type="button"><span class="model-card-head"><strong>claude-opus-4-7</strong><span class="billing-chip">高级 ×1.3</span></span><span class="model-card-id">claude-opus-4-7</span><span class="model-card-caps">1M 上下文 · 输出 128K · 思考</span></button>
+              <button class="model-card" type="button"><span class="model-card-head"><strong>claude-opus-4-8</strong><span class="billing-chip">高级 ×1.3</span></span><span class="model-card-id">claude-opus-4-8</span><span class="model-card-caps">1M 上下文 · 输出 128K · 思考</span></button>
+              <button class="model-card" type="button"><span class="model-card-head"><strong>claude-opus-5</strong><span class="billing-chip">高级 ×1.3</span></span><span class="model-card-id">claude-opus-5</span><span class="model-card-caps">1M 上下文 · 输出 128K · 思考</span></button>
+              <button class="model-card" type="button"><span class="model-card-head"><strong>claude-sonnet-4-6</strong><span class="billing-chip">高级 ×1.3</span></span><span class="model-card-id">claude-sonnet-4-6</span><span class="model-card-caps">1M 上下文 · 输出 128K · 思考</span></button>
+              <button class="model-card" type="button"><span class="model-card-head"><strong>claude-sonnet-5-5</strong><span class="billing-chip">高级 ×1.3</span></span><span class="model-card-id">claude-sonnet-5-5</span><span class="model-card-caps">1M 上下文 · 输出 128K · 思考</span></button>
+            </div>
+            <p class="model-wall-empty" id="modelWallEmpty" hidden>没有匹配的示例模型</p>
+            <small class="model-wall-hint">示例价格：每 100 万 tokens 输入 1.0000 / 输出 2.0000。页面数字均为演示，不代表真实扣费。</small>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="page usage-page" id="page-usage" data-page="usage">
+      <div class="page-scroll usage-scroll">
+        <div class="usage-content" style="display:grid">
+          <article class="panel usage-stats">
+            <div class="usage-stat is-cost"><small>总花费</small><strong class="usage-stat-value" id="usageTotal">¥12.8000</strong><span class="usage-stat-sub strong">共 24 条示例记录</span><span class="usage-stat-sub">缓存节省 ¥3.2000</span></div>
+            <div class="usage-stat is-cost"><small>今日花费</small><strong class="usage-stat-value" id="usageToday">¥1.2000</strong><span class="usage-stat-sub">6 次示例请求 · 0.4M Token</span><span class="usage-stat-sub">累计免费 10 次 · 付费 14 次</span></div>
+            <div class="usage-stat"><small>总 Token</small><strong class="usage-stat-value">2.40M</strong><span class="usage-stat-sub">输入 0.80M · 缓存 1.40M · 输出 0.20M</span></div>
+            <div class="usage-stat"><small>缓存命中率</small><strong class="usage-stat-value">60.00%</strong><span class="usage-stat-sub">示例命中 / 全部输入</span><div class="usage-meter"><span style="width:60%"></span></div></div>
+          </article>
+          <div class="usage-board">
+            <article class="panel usage-chart-panel">
+              <div class="panel-header"><div class="usage-title"><h3><svg class="section-heading-icon"><use href="#i-chart"/></svg>累计花费</h3></div></div>
+              <p class="usage-range-text" id="usageRangeText">示例区间（03-01 至 03-30）· 花费 ¥12.8000 · 24 次请求（免费 10 / 付费 14）· 2.40M Token</p>
+              <div class="usage-chart" id="usageChartWrap">
+                <svg class="usage-chart-svg" id="usageChart" role="img" aria-label="按模型堆叠的累计花费趋势图"></svg>
+                <div class="usage-tooltip" id="usageTooltip" hidden></div>
+              </div>
+              <ul class="usage-legend" id="usageLegend"></ul>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page log-page" id="page-log" data-page="log">
+      <article class="panel heartbeat-panel" id="heartbeatPanel" data-state="good">
+        <div class="panel-header"><div><h3><svg class="section-heading-icon"><use href="#i-pulse"/></svg>心跳监控</h3></div><div class="hb-live"><span class="hb-dot"></span><span id="hbLiveText">演示 · 09:12:00</span></div></div>
+        <div class="hb-body">
+          <div class="hb-now"><div class="hb-reading"><strong id="hbValue">120</strong><em>ms</em></div><span class="hb-quality" id="hbQuality">演示延迟</span><small class="hb-target">示例数据 · 每 3 秒刷新</small></div>
+          <div class="hb-chart-wrap">
+            <svg class="hb-chart" viewBox="0 0 400 96" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="hbFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="currentColor" stop-opacity=".32"/>
+                  <stop offset="1" stop-color="currentColor" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <g class="hb-grid"><line x1="0" y1="24" x2="400" y2="24"/><line x1="0" y1="48" x2="400" y2="48"/><line x1="0" y1="72" x2="400" y2="72"/></g>
+              <path class="hb-area" id="hbArea" fill="url(#hbFill)" d=""></path>
+              <path class="hb-line" id="hbLine" d="" fill="none"></path>
+            </svg>
+          </div>
+        </div>
+        <dl class="hb-stats"><div><dt>平均</dt><dd id="hbAvg">118 ms</dd></div><div><dt>最低</dt><dd id="hbMin">86 ms</dd></div><div><dt>最高</dt><dd id="hbMax">148 ms</dd></div><div><dt>丢包率</dt><dd id="hbLoss">0%</dd></div><div><dt>采样</dt><dd id="hbCount">60</dd></div></dl>
+      </article>
+      <article class="panel activity-panel">
+        <div class="panel-header"><div><h3><svg class="section-heading-icon"><use href="#i-activity"/></svg>中继活动</h3></div><span class="activity-total" id="activityTotal">累计处理 12</span></div>
+        <div class="activity-grid">
+          <div class="activity-item"><span class="activity-icon"><svg><use href="#i-server"/></svg></span><div><small>服务器</small><strong>在线</strong></div></div>
+          <div class="activity-item"><span class="activity-icon"><svg><use href="#i-activity"/></svg></span><div><small>等待队列</small><strong id="activityQueue">空闲</strong></div></div>
+          <div class="activity-item"><span class="activity-icon"><svg><use href="#i-key"/></svg></span><div><small>会话凭据</small><strong>可用</strong></div></div>
+          <div class="activity-item"><span class="activity-icon"><svg><use href="#i-clock"/></svg></span><div><small>最近完成</small><strong id="activityLast">暂无</strong></div></div>
+          <div class="activity-item"><span class="activity-icon"><svg><use href="#i-route"/></svg></span><div><small>正在处理</small><strong id="activityCurrent">空闲</strong></div></div>
+        </div>
+      </article>
+      <article class="log-console">
+        <div class="log-toolbar">
+          <div class="segment-control" id="logFilters"><button class="active" type="button" data-log-filter="all">全部</button><button type="button" data-log-filter="success">成功</button><button type="button" data-log-filter="error">异常</button><button type="button" data-log-filter="relay">转发</button></div>
+          <label class="search-box"><svg><use href="#i-search"/></svg><input id="logSearch" type="search" placeholder="搜索日志内容"><kbd>Ctrl K</kbd></label>
+        </div>
+        <div class="log-actions">
+          <div>
+            <button class="button compact secondary" id="streamBtn" type="button"><svg><use href="#i-pause"/></svg><span>暂停显示</span></button>
+            <button class="button compact secondary" id="loadHistoryBtn" type="button"><svg><use href="#i-history"/></svg><span>加载历史</span></button>
+            <button class="button compact ghost" id="clearLogsBtn" type="button"><svg><use href="#i-trash"/></svg><span>清空视图</span></button>
+          </div>
+          <label class="check-control"><input id="autoScroll" type="checkbox" checked><span><svg><use href="#i-check"/></svg></span>自动滚动</label>
+        </div>
+        <div class="log-viewport" id="logViewport">
+          <div class="log-lines" id="logLines"></div>
+        </div>
+        <footer class="log-footer"><span id="logCount">已显示 0 / 0 行</span></footer>
+      </article>
+    </section>
+
+    <section class="page" id="page-profile" data-page="profile">
+      <div class="page-scroll profile-scroll">
+        <div class="profile-shell">
+          <div class="profile-stage">
+            <header class="profile-hero">
+              <button class="profile-avatar site-avatar" type="button" title="示例头像">
+                <span class="avatar" aria-hidden="true"><svg viewBox="0 0 64 64"><use href="#i-site"/></svg></span>
+                <span class="profile-avatar-tip"><span>官网图标</span></span>
+              </button>
+              <div class="profile-meta">
+                <div class="profile-name-row">
+                  <strong id="profileName">Devin</strong>
+                  <button class="profile-name-edit" id="profileEditNameBtn" type="button">编辑</button>
+                  <input class="profile-name-input" id="profileNameInput" type="text" maxlength="20" hidden autocomplete="off" spellcheck="false" aria-label="昵称" value="Devin">
+                </div>
+                <span id="profileEmail">demo@example.com</span>
+                <small class="operator-line"><span class="operator-dot admin"></span><span>示例账号</span></small>
+              </div>
+            </header>
+            <div class="profile-bg-col">
+              <button class="profile-bg" type="button">
+                <span class="profile-bg-preview"></span>
+                <span class="profile-bg-caption"><strong>更换背景</strong><small>示例，不会上传图片</small></span>
+              </button>
+            </div>
+          </div>
+          <section class="profile-block">
+            <div class="profile-block-head"><h3>账号</h3></div>
+            <div class="profile-list">
+              <button class="profile-row" type="button"><span class="profile-row-icon"><svg><use href="#i-signout"/></svg></span><span class="profile-row-copy"><strong>退出登录</strong><small>停止拦截，回到登录页</small></span><span class="profile-row-aside">退出</span></button>
+              <a class="profile-row" href="https://cursorhub.bitheart.top/" target="_blank" rel="noopener"><span class="profile-row-icon"><svg><use href="#i-apps"/></svg></span><span class="profile-row-copy"><strong>查看其他产品</strong><small>CursorHub · 模型连接与用量</small></span><span class="profile-row-aside">打开</span></a>
+              <button class="profile-row" id="qqGroupBtn" type="button"><span class="profile-row-icon"><svg><use href="#i-chat"/></svg></span><span class="profile-row-copy"><strong>QQ 交流群</strong><small>386427683</small></span><span class="profile-row-aside" id="qqAside">复制</span></button>
+              <button class="profile-row is-danger" type="button"><span class="profile-row-icon"><svg><use href="#i-restore"/></svg></span><span class="profile-row-copy"><strong>退出并恢复</strong><small>停止拦截，并还原本机 hosts</small></span><span class="profile-row-aside">退出</span></button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-config" data-page="config"></section>
+  </main>
+</div>
+<script>
+  let currentRoute = "home";
+  let navGen = 0;
+  const pinLeavingPage = (page) => {
+    const parent = page.parentElement;
+    if (!parent) return;
+    const rect = page.getBoundingClientRect();
+    const parentRect = parent.getBoundingClientRect();
+    page.style.top = `${rect.top - parentRect.top}px`;
+    page.style.left = `${rect.left - parentRect.left}px`;
+    page.style.width = `${rect.width}px`;
+    page.style.height = `${rect.height}px`;
+    page.style.right = "auto";
+    page.style.margin = "0";
+  };
+  const clearPagePin = (page) => {
+    page.style.top = "";
+    page.style.left = "";
+    page.style.width = "";
+    page.style.height = "";
+    page.style.right = "";
+    page.style.margin = "";
+  };
+  const placeIndicator = (instant) => {
+    const nav = document.querySelector(".navigation");
+    const indicator = document.getElementById("navIndicator");
+    const active = nav.querySelector(".nav-item.active");
+    if (!indicator) return;
+    if (instant) indicator.style.transition = "none";
+    indicator.classList.toggle("is-hidden", !active);
+    indicator.style.opacity = active ? "1" : "0";
+    if (active) {
+      indicator.style.width = `${active.offsetWidth}px`;
+      indicator.style.transform = `translate3d(${active.offsetLeft}px, 0, 0)`;
+    }
+    if (instant) {
+      indicator.getBoundingClientRect();
+      indicator.style.transition = "";
+    }
+  };
+  const syncTopbar = (scroller) => {
+    const shell = document.querySelector(".app-shell");
+    const top = scroller ? scroller.scrollTop : (document.querySelector(".page.active .page-scroll")?.scrollTop || 0);
+    const scrolled = top > 4;
+    shell.classList.toggle("is-scrolled", scrolled);
+    shell.classList.toggle("is-top", !scrolled);
+  };
+  const go = (route, after) => {
+    const next = document.getElementById("page-" + route);
+    if (!next) return;
+    if (currentRoute === route && next.classList.contains("active")) {
+      placeIndicator(true);
+      after?.();
+      return;
+    }
+    const gen = ++navGen;
+    const prev = document.querySelector(".page.active");
+    currentRoute = route;
+    document.querySelectorAll(".nav-item").forEach((btn) => btn.classList.toggle("active", btn.dataset.route === route));
+    document.getElementById("brandChip").classList.toggle("is-active", route === "profile");
+    placeIndicator(false);
+    document.querySelectorAll(".page.is-leaving").forEach((page) => {
+      page.classList.remove("is-leaving");
+      clearPagePin(page);
+    });
+    const present = () => {
+      if (gen !== navGen) return;
+      next.classList.remove("is-entering");
+      next.classList.add("active");
+      next.getBoundingClientRect();
+      next.classList.add("is-entering");
+      syncTopbar(next.querySelector(".page-scroll"));
+      if (route === "log" && document.getElementById("autoScroll").checked) {
+        const viewport = document.getElementById("logViewport");
+        requestAnimationFrame(() => { viewport.scrollTop = viewport.scrollHeight; });
+      }
+      after?.();
+    };
+    if (prev && prev !== next) {
+      pinLeavingPage(prev);
+      prev.classList.remove("active", "is-entering");
+      prev.classList.add("is-leaving");
+      let settled = false;
+      const finish = (event) => {
+        if (gen !== navGen || settled || (event && event.target !== prev)) return;
+        settled = true;
+        prev.removeEventListener("animationend", finish);
+        prev.classList.remove("is-leaving");
+        clearPagePin(prev);
+        present();
+      };
+      prev.addEventListener("animationend", finish);
+      window.setTimeout(finish, 180);
+    } else {
+      present();
+    }
+  };
+  placeIndicator(true);
+  window.addEventListener("resize", () => placeIndicator(true));
+  document.querySelectorAll(".page-scroll").forEach((scroller) => {
+    scroller.addEventListener("scroll", () => syncTopbar(scroller), { passive: true });
+  });
+  syncTopbar(document.querySelector(".page.active .page-scroll"));
+  document.querySelectorAll("[data-route],[data-go]").forEach((btn) => {
+    btn.addEventListener("click", () => go(btn.dataset.route || btn.dataset.go));
+  });
+  document.getElementById("openLogsBtn").addEventListener("click", () => go("log"));
+  document.getElementById("profileEditNameBtn").addEventListener("click", () => {
+    const name = document.getElementById("profileName");
+    const input = document.getElementById("profileNameInput");
+    const editing = input.hidden;
+    input.hidden = !editing;
+    name.hidden = editing;
+    if (editing) {
+      input.value = name.textContent;
+      input.focus();
+    }
+  });
+  document.getElementById("profileNameInput").addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== "Escape") return;
+    const name = document.getElementById("profileName");
+    const input = document.getElementById("profileNameInput");
+    if (event.key === "Enter") {
+      const next = input.value.trim() || "Devin";
+      name.textContent = next;
+      document.getElementById("navUserName").textContent = next;
+    }
+    input.hidden = true;
+    name.hidden = false;
+  });
+  document.getElementById("qqGroupBtn").addEventListener("click", async () => {
+    const button = document.getElementById("qqGroupBtn");
+    const aside = document.getElementById("qqAside");
+    try {
+      await navigator.clipboard.writeText("386427683");
+    } catch {}
+    button.classList.add("is-copied");
+    aside.style.opacity = "0";
+    aside.style.transform = "translateY(6px)";
+    window.setTimeout(() => {
+      aside.textContent = "已复制";
+      aside.style.opacity = "1";
+      aside.style.transform = "translateY(0)";
+    }, 120);
+    window.setTimeout(() => {
+      aside.style.opacity = "0";
+      aside.style.transform = "translateY(-6px)";
+      window.setTimeout(() => {
+        button.classList.remove("is-copied");
+        aside.textContent = "复制";
+        aside.style.opacity = "1";
+        aside.style.transform = "translateY(0)";
+      }, 140);
+    }, 1400);
+  });
+  document.getElementById("hbMini").addEventListener("click", () => {
+    go("log", () => {
+      document.getElementById("heartbeatPanel")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  });
+  const demoModels = [
+    ["mimo", "0", "demo-mimo", "高级 ×1.3", "1M 上下文 · 输出 128K · 思考"],
+    ["glm", "0", "demo-glm-1", "高级 ×1.3", "128K 上下文 · 思考"],
+    ["glm", "0", "demo-glm-2", "高级 ×1.3", "128K 上下文 · 思考"],
+    ["glm", "1", "demo-glm-free", "免费", "128K 上下文"],
+    ["glm", "0", "demo-glm-3", "高级 ×1.3", "128K 上下文 · 思考"],
+    ["other", "1", "demo-lite", "免费", "32K 上下文"],
+    ["other", "1", "demo-echo", "免费", "64K 上下文"],
+    ["other", "0", "demo-spark", "高级 ×1.3", "200K 上下文 · 思考"],
+    ["other", "0", "demo-nova", "高级 ×1.3", "200K 上下文 · 思考"],
+  ];
+  const wall = document.getElementById("modelWall");
+  demoModels.forEach(([series, free, name, price, caps]) => {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "model-card";
+    card.dataset.series = series;
+    card.dataset.free = free;
+    card.innerHTML = `<span class="model-card-head"><strong></strong><span class="billing-chip" data-tier="${free === "1" ? "free" : "paid"}"></span></span><span class="model-card-id"></span><span class="model-card-caps"></span>`;
+    card.querySelector("strong").textContent = name;
+    card.querySelector(".billing-chip").textContent = price;
+    card.querySelector(".model-card-id").textContent = name;
+    card.querySelector(".model-card-caps").textContent = caps;
+    wall.append(card);
+  });
+  document.querySelectorAll(".model-card").forEach((card) => {
+    if (!card.dataset.series) {
+      card.dataset.series = "claude";
+      card.dataset.free = "0";
+    }
+    if (!card.querySelector(".model-card-check")) {
+      card.insertAdjacentHTML("beforeend", '<svg class="model-card-check"><use href="#i-check"/></svg>');
+    }
+    card.addEventListener("click", () => {
+      document.querySelectorAll(".model-card").forEach((item) => item.classList.remove("selected"));
+      card.classList.add("selected");
+      const name = card.querySelector("strong").textContent;
+      const price = card.querySelector(".billing-chip");
+      document.querySelector(".route-preview strong").textContent = name;
+      const routeBilling = document.getElementById("routeBilling");
+      routeBilling.textContent = price.textContent;
+      routeBilling.dataset.tier = price.dataset.tier;
+      const current = document.querySelector("#chipRow .chip");
+      if (current) current.textContent = name;
+    });
+  });
+  const applyModelFilter = () => {
+    const series = document.querySelector("#modelTabs .active")?.dataset.series || "all";
+    const freeOnly = document.getElementById("modelFreeOnly").checked;
+    const keyword = document.getElementById("modelSearch").value.trim().toLowerCase();
+    let shown = 0;
+    document.querySelectorAll(".model-card").forEach((card) => {
+      const text = `${card.querySelector("strong").textContent} ${card.querySelector(".model-card-id").textContent}`.toLowerCase();
+      const visible = (series === "all" || card.dataset.series === series)
+        && (!freeOnly || card.dataset.free === "1")
+        && (!keyword || text.includes(keyword));
+      card.hidden = !visible;
+      if (visible) shown += 1;
+    });
+    document.getElementById("modelWallEmpty").hidden = shown > 0;
+    const counts = { all: 0, claude: 0, mimo: 0, glm: 0, other: 0 };
+    document.querySelectorAll(".model-card").forEach((card) => {
+      if (freeOnly && card.dataset.free !== "1") return;
+      counts.all += 1;
+      counts[card.dataset.series] += 1;
+    });
+    document.querySelectorAll("#modelTabs button").forEach((button) => {
+      button.textContent = `${button.dataset.label} ${counts[button.dataset.series] || 0}`;
+    });
+  };
+  document.getElementById("modelTabs").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-series]");
+    if (!button) return;
+    document.querySelectorAll("#modelTabs button").forEach((item) => item.classList.toggle("active", item === button));
+    applyModelFilter();
+  });
+  document.getElementById("modelFreeOnly").addEventListener("change", applyModelFilter);
+  document.getElementById("modelSearch").addEventListener("input", applyModelFilter);
+  applyModelFilter();
+
+  let demoSeconds = 9 * 3600 + 12 * 60;
+  const clock = () => {
+    const hours = String(Math.floor(demoSeconds / 3600) % 24).padStart(2, "0");
+    const minutes = String(Math.floor((demoSeconds % 3600) / 60)).padStart(2, "0");
+    const seconds = String(demoSeconds % 60).padStart(2, "0");
+    return `${hours}:${minutes}:${seconds}`;
+  };
+  const advanceClock = (step = 1) => { demoSeconds += step; };
+  document.getElementById("refreshStatusBtn").addEventListener("click", () => {
+    const button = document.getElementById("refreshStatusBtn");
+    const time = document.getElementById("updatedAt");
+    if (button.disabled) return;
+    button.classList.add("loading");
+    button.disabled = true;
+    time.textContent = "正在检测";
+    setTimeout(() => {
+      advanceClock(1);
+      time.textContent = `更新 ${clock()}`;
+      button.classList.remove("loading");
+      button.disabled = false;
+    }, 700);
+  });
+  const logs = [
+    { category: "success", text: "[示例] 演示环境已就绪", time: "09:12:01" },
+    { category: "relay", text: "[示例] 演示任务 #007 已进入队列", time: "09:12:04" },
+    { category: "success", text: "[示例] 演示任务 #007 已完成 · 耗时 0.8s", time: "09:12:06" },
+  ];
+  let logFilter = "all";
+  let logQuery = "";
+  let streaming = true;
+  let handled = 12;
+  let demoNo = 7;
+  let historyLoaded = false;
+  const steps = [];
+  let logTimer = 0;
+
+  const lineNode = (entry, kind) => {
+    const line = document.createElement("div");
+    line.className = `${kind} ${entry.category}`;
+    const marker = document.createElement("span");
+    marker.className = "log-marker";
+    const text = document.createElement("span");
+    text.className = "log-text";
+    text.textContent = entry.text;
+    const time = document.createElement("time");
+    time.className = "log-time";
+    time.textContent = entry.time;
+    line.append(marker, text, time);
+    return line;
+  };
+
+  const renderLogs = (markNew) => {
+    const map = { success: ["success"], error: ["error", "blocked"], relay: ["relay"] };
+    const visible = logs.filter((entry) => {
+      if (logFilter !== "all" && !(map[logFilter] || []).includes(entry.category)) return false;
+      return !logQuery || entry.text.toLowerCase().includes(logQuery);
+    });
+    const shown = visible.slice(-80);
+    const viewport = document.getElementById("logViewport");
+    const nearBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight < 80;
+    const box = document.getElementById("logLines");
+    box.replaceChildren(...shown.map((entry, index) => {
+      const line = lineNode(entry, "log-line");
+      if (markNew && index === shown.length - 1) line.classList.add("is-new");
+      return line;
+    }));
+    document.getElementById("logCount").textContent = `已显示 ${shown.length} / ${visible.length} 行`;
+    if (document.getElementById("autoScroll").checked && streaming && nearBottom) {
+      viewport.scrollTop = viewport.scrollHeight;
+    }
+    document.getElementById("logPreview").replaceChildren(
+      ...logs.slice(-3).reverse().map((entry) => lineNode(entry, "preview-line")),
+    );
+  };
+
+  const pushLog = (entry) => {
+    advanceClock(1);
+    logs.push({ ...entry, time: clock() });
+    if (logs.length > 240) logs.splice(0, logs.length - 180);
+    renderLogs(true);
+  };
+
+  const setBadge = (id, text, tone) => {
+    const badge = document.getElementById(id);
+    badge.textContent = text;
+    badge.className = `badge ${tone}`;
+  };
+  let proxyTimer = 0;
+  document.getElementById("startProxyBtn").addEventListener("click", () => {
+    const board = document.getElementById("statusBoard");
+    const start = document.getElementById("startProxyBtn");
+    start.classList.add("loading");
+    start.disabled = true;
+    board.dataset.operation = "starting";
+    document.getElementById("captureTitle").textContent = "正在启动应用级拦截";
+    setBadge("captureBadge", "启动中", "accent");
+    clearTimeout(proxyTimer);
+    proxyTimer = setTimeout(() => {
+      board.dataset.state = "running";
+      board.dataset.operation = "";
+      document.getElementById("captureTitle").textContent = "本地拦截已开启";
+      setBadge("captureBadge", "运行中", "success");
+      start.classList.remove("loading");
+      document.getElementById("stopProxyBtn").disabled = false;
+      pushLog({ category: "success", text: "[示例] 演示拦截已开启" });
+    }, 900);
+  });
+  document.getElementById("stopProxyBtn").addEventListener("click", () => {
+    const board = document.getElementById("statusBoard");
+    const stop = document.getElementById("stopProxyBtn");
+    stop.classList.add("loading");
+    stop.disabled = true;
+    board.dataset.operation = "stopping";
+    document.getElementById("captureTitle").textContent = "正在停止拦截并关闭 Devin";
+    setBadge("captureBadge", "停止中", "warning");
+    clearTimeout(proxyTimer);
+    proxyTimer = setTimeout(() => {
+      board.dataset.state = "idle";
+      board.dataset.operation = "";
+      document.getElementById("captureTitle").textContent = "本地拦截未开启";
+      setBadge("captureBadge", "未运行", "danger");
+      stop.classList.remove("loading");
+      const start = document.getElementById("startProxyBtn");
+      start.classList.remove("loading");
+      start.disabled = false;
+      pushLog({ category: "normal", text: "[示例] 演示拦截已停止" });
+    }, 900);
+  });
+
+  const setActivity = ({ queue, current, last }) => {
+    if (queue != null) document.getElementById("activityQueue").textContent = queue;
+    if (current != null) document.getElementById("activityCurrent").textContent = current;
+    if (last != null) document.getElementById("activityLast").textContent = last;
+    document.getElementById("activityTotal").textContent = `累计处理 ${handled}`;
+  };
+
+  const enqueueBurst = () => {
+    demoNo += 1;
+    const no = String(demoNo).padStart(3, "0");
+    const seconds = (0.6 + (demoNo % 5) * 0.3).toFixed(1);
+    const fail = demoNo % 7 === 0;
+    steps.push(() => {
+      setActivity({ queue: demoNo % 4 === 0 ? "1 排队" : "空闲", current: `示例 #${no}` });
+      pushLog({ category: "relay", text: `[示例] 演示任务 #${no} 已进入队列` });
+    });
+    if (fail) {
+      steps.push(() => {
+        pushLog({ category: "error", text: `[示例] 演示任务 #${no} 模拟超时，已自动重试` });
+      });
+    }
+    steps.push(() => {
+      handled += 1;
+      setActivity({ queue: "空闲", current: "空闲", last: `示例 #${no}` });
+      pushLog({ category: "success", text: `[示例] 演示任务 #${no} 已完成 · 耗时 ${seconds}s` });
+    });
+  };
+
+  const armNext = (delay) => {
+    clearTimeout(logTimer);
+    logTimer = setTimeout(() => {
+      if (!streaming) return;
+      if (!steps.length) enqueueBurst();
+      steps.shift()();
+      armNext(steps.length ? 650 + Math.random() * 900 : 1400 + Math.random() * 1800);
+    }, delay);
+  };
+
+  document.getElementById("streamBtn").addEventListener("click", () => {
+    streaming = !streaming;
+    const button = document.getElementById("streamBtn");
+    button.querySelector("span").textContent = streaming ? "暂停显示" : "恢复显示";
+    button.querySelector("use").setAttribute("href", streaming ? "#i-pause" : "#i-play");
+    if (streaming) armNext(280);
+  });
+  document.getElementById("clearLogsBtn").addEventListener("click", () => {
+    logs.length = 0;
+    renderLogs(false);
+  });
+  document.getElementById("loadHistoryBtn").addEventListener("click", () => {
+    if (historyLoaded) return;
+    historyLoaded = true;
+    logs.unshift(
+      { category: "success", text: "[示例] 演示记录 #001 已完成 · 耗时 1.1s", time: "09:08:12" },
+      { category: "relay", text: "[示例] 演示记录 #002 已进入队列", time: "09:09:20" },
+      { category: "error", text: "[示例] 演示记录 #003 模拟失败后已恢复", time: "09:10:04" },
+    );
+    renderLogs(false);
+    document.getElementById("logViewport").scrollTop = 0;
+  });
+  document.getElementById("logFilters").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-log-filter]");
+    if (!button) return;
+    logFilter = button.dataset.logFilter;
+    document.querySelectorAll("#logFilters button").forEach((item) => item.classList.toggle("active", item === button));
+    renderLogs(false);
+  });
+  document.getElementById("logSearch").addEventListener("input", (event) => {
+    logQuery = event.target.value.trim().toLowerCase();
+    renderLogs(false);
+  });
+
+  const samples = [];
+  let beat = 0;
+  const scriptedLatency = (step) => Math.round(112 + Math.sin(step / 2.4) * 26 + (step % 5) - 2);
+  for (let index = 0; index < 60; index += 1) samples.push({ ok: true, ms: scriptedLatency(index) });
+
+  const renderChart = () => {
+    const width = 400;
+    const height = 96;
+    const values = samples.map((sample) => sample.ms);
+    const ceiling = Math.max(120, Math.ceil((Math.max(...values) * 1.2) / 20) * 20);
+    const step = width / 59;
+    const offset = 60 - samples.length;
+    const points = samples.map((sample, index) => {
+      const x = (offset + index) * step;
+      const y = height - 6 - (Math.min(sample.ms, ceiling) / ceiling) * (height - 14);
+      return [x, y];
+    });
+    const line = `M${points.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" L")}`;
+    const area = `M${points[0][0].toFixed(1)},${height} L${points.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" L")} L${points.at(-1)[0].toFixed(1)},${height} Z`;
+    document.getElementById("hbLine").setAttribute("d", line);
+    document.getElementById("hbArea").setAttribute("d", area);
+  };
+
+  const paintHeartbeat = (ms) => {
+    const tier = ms < 150 ? "good" : ms < 400 ? "fair" : "poor";
+    const label = tier === "good" ? "演示畅通" : tier === "fair" ? "演示一般" : "演示偏高";
+    const badge = tier === "good" ? "success" : tier === "fair" ? "warning" : "danger";
+    document.getElementById("heartbeatPanel").dataset.state = tier;
+    document.getElementById("hbMini").dataset.state = tier;
+    document.getElementById("hbValue").textContent = String(ms);
+    document.getElementById("hbMiniValue").textContent = `${ms}ms`;
+    document.getElementById("hbQuality").textContent = label;
+    document.getElementById("hbLiveText").textContent = `演示 · ${clock()}`;
+    const badgeNode = document.getElementById("latencyBadge");
+    badgeNode.className = `badge ${badge}`;
+    badgeNode.textContent = `${ms} ms`;
+    const values = samples.map((sample) => sample.ms);
+    const average = Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
+    document.getElementById("hbAvg").textContent = `${average} ms`;
+    document.getElementById("hbMin").textContent = `${Math.min(...values)} ms`;
+    document.getElementById("hbMax").textContent = `${Math.max(...values)} ms`;
+    document.getElementById("hbLoss").textContent = "0%";
+    document.getElementById("hbCount").textContent = String(Math.min(60, samples.length));
+    renderChart();
+  };
+
+  renderLogs(false);
+  paintHeartbeat(samples.at(-1).ms);
+  setInterval(() => {
+    advanceClock(3);
+    beat += 1;
+    const ms = scriptedLatency(59 + beat);
+    samples.push({ ok: true, ms });
+    if (samples.length > 60) samples.shift();
+    paintHeartbeat(ms);
+  }, 3000);
+  armNext(1100);
+
+  const money = (value) => `¥${value.toFixed(4)}`;
+  const usageDays = Array.from({ length: 30 }, (_, index) => `03-${String(index + 1).padStart(2, "0")}`);
+  const usageSeries = [
+    { label: "demo-spark", color: "#3b82f6", daily: usageDays.map((_, index) => (index < 16 ? 0.04 : 0.18 + (index - 16) * 0.04)) },
+    { label: "demo-glm-1", color: "#22c55e", daily: usageDays.map((_, index) => (index < 16 ? 0.02 : 0.12 + (index - 16) * 0.025)) },
+    { label: "demo-lite", color: "#a855f7", free: true, daily: usageDays.map((_, index) => (index % 4 === 0 ? 0.06 : 0.02)) },
+  ].map((item) => {
+    let running = 0;
+    return { ...item, cumulative: item.daily.map((value) => (running += value)) };
+  });
+  const usageStacked = [];
+  usageSeries.forEach((item, index) => {
+    usageStacked.push(item.cumulative.map((value, day) => value + (index ? usageStacked[index - 1][day] : 0)));
+  });
+  const usageMax = Math.max(...usageStacked.at(-1));
+  const usageRaw = usageMax / 4;
+  const usageMagnitude = 10 ** Math.floor(Math.log10(usageRaw));
+  const usageNice = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].find((candidate) => usageRaw / usageMagnitude <= candidate + 1e-9) || 10;
+  const usageStep = usageNice * usageMagnitude;
+  const usageTop = usageStep * 4;
+  const chartW = 640;
+  const chartH = 210;
+  const padL = 54;
+  const padR = 16;
+  const padT = 12;
+  const padB = 28;
+  const plotW = chartW - padL - padR;
+  const plotH = chartH - padT - padB;
+  const xOf = (index) => padL + (index / (usageDays.length - 1)) * plotW;
+  const yOf = (value) => padT + plotH - (value / usageTop) * plotH;
+  const svg = document.getElementById("usageChart");
+  svg.setAttribute("viewBox", `0 0 ${chartW} ${chartH}`);
+  const ns = "http://www.w3.org/2000/svg";
+  const add = (name, attrs) => {
+    const node = document.createElementNS(ns, name);
+    Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
+    svg.append(node);
+    return node;
+  };
+  for (let tick = 0; tick < 5; tick += 1) {
+    const value = usageStep * tick;
+    const y = yOf(value).toFixed(1);
+    add("line", { class: tick ? "usage-grid" : "usage-grid base", x1: padL, x2: chartW - padR, y1: y, y2: y });
+    const label = add("text", { class: "usage-axis", x: padL - 8, y: Number(y) + 4, "text-anchor": "end" });
+    label.textContent = money(value);
+  }
+  [0, 14, 29].forEach((index, order) => {
+    const anchor = order === 0 ? "start" : order === 2 ? "end" : "middle";
+    const x = order === 0 ? padL : order === 2 ? padL + plotW : xOf(index);
+    const label = add("text", { class: "usage-axis", x: x.toFixed(1), y: chartH - 6, "text-anchor": anchor });
+    label.textContent = usageDays[index].replace("-", "/");
+  });
+  const points = (values) => values.map((value, index) => [xOf(index), yOf(value)]);
+  const trace = (list) => list.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join("L");
+  usageSeries.forEach((item, index) => {
+    const upper = points(usageStacked[index]);
+    const lower = index ? points(usageStacked[index - 1]) : upper.map(([x]) => [x, yOf(0)]);
+    add("path", { class: "usage-area", fill: item.color, d: `M${trace(upper)}L${trace([...lower].reverse())}Z` });
+  });
+  usageSeries.forEach((item, index) => {
+    add("path", { class: "usage-line", stroke: item.color, d: `M${trace(points(usageStacked[index]))}` });
+  });
+  const hover = add("g", { class: "usage-hover", visibility: "hidden" });
+  const guide = document.createElementNS(ns, "line");
+  guide.setAttribute("class", "usage-guide");
+  guide.setAttribute("y1", padT);
+  guide.setAttribute("y2", padT + plotH);
+  hover.append(guide);
+  const dots = usageSeries.map((item) => {
+    const dot = document.createElementNS(ns, "circle");
+    dot.setAttribute("class", "usage-dot");
+    dot.setAttribute("r", "3.5");
+    dot.setAttribute("fill", item.color);
+    hover.append(dot);
+    return dot;
+  });
+  const tooltip = document.getElementById("usageTooltip");
+  let usageHover = -1;
+  const hideUsageTip = () => {
+    usageHover = -1;
+    hover.setAttribute("visibility", "hidden");
+    tooltip.hidden = true;
+  };
+  svg.addEventListener("pointermove", (event) => {
+    const rect = svg.getBoundingClientRect();
+    if (!rect.width) return;
+    const x = (event.clientX - rect.left) * (chartW / rect.width);
+    if (x < padL - 12 || x > padL + plotW + 12) {
+      hideUsageTip();
+      return;
+    }
+    const index = Math.round(Math.min(1, Math.max(0, (x - padL) / plotW)) * (usageDays.length - 1));
+    if (index === usageHover) return;
+    usageHover = index;
+    const gx = xOf(index);
+    hover.setAttribute("visibility", "visible");
+    guide.setAttribute("x1", gx.toFixed(1));
+    guide.setAttribute("x2", gx.toFixed(1));
+    dots.forEach((dot, seriesIndex) => {
+      dot.setAttribute("cx", gx.toFixed(1));
+      dot.setAttribute("cy", yOf(usageStacked[seriesIndex][index]).toFixed(1));
+    });
+    tooltip.replaceChildren();
+    const title = document.createElement("strong");
+    title.textContent = usageDays[index];
+    tooltip.append(title);
+    usageSeries.forEach((item, seriesIndex) => {
+      const row = document.createElement("div");
+      row.className = "usage-tip-row";
+      row.innerHTML = `<i style="background:${item.color}"></i><span></span><b></b>`;
+      row.querySelector("span").textContent = item.label;
+      row.querySelector("b").textContent = money(item.cumulative[index]);
+      tooltip.append(row);
+    });
+    const total = document.createElement("div");
+    total.className = "usage-tip-row total";
+    total.innerHTML = "<i></i><span>累计合计</span><b></b>";
+    total.querySelector("b").textContent = money(usageStacked.at(-1)[index]);
+    tooltip.append(total);
+    tooltip.hidden = false;
+    const pixel = gx / (chartW / rect.width);
+    const width = tooltip.offsetWidth;
+    let left = pixel + 14;
+    if (left + width > rect.width - 4) left = Math.max(4, pixel - width - 14);
+    tooltip.style.left = `${Math.round(left)}px`;
+  });
+  svg.addEventListener("pointerleave", hideUsageTip);
+  const legend = document.getElementById("usageLegend");
+  usageSeries.forEach((item) => {
+    const row = document.createElement("li");
+    row.innerHTML = `<i style="background:${item.color}"></i><span><strong></strong><small></small></span>`;
+    row.querySelector("strong").textContent = item.free ? `${item.label} 免费` : item.label;
+    row.querySelector("small").textContent = money(item.cumulative.at(-1));
+    legend.append(row);
+  });
+  const usageTotal = usageStacked.at(-1).at(-1);
+  const usageToday = usageSeries.reduce((sum, item) => sum + item.daily.at(-1), 0);
+  document.getElementById("usageTotal").textContent = money(usageTotal);
+  document.getElementById("usageToday").textContent = money(usageToday);
+  document.getElementById("usageRangeText").textContent = `示例区间（03-01 至 03-30）· 花费 ${money(usageTotal)} · 24 次请求（免费 10 / 付费 14）· 2.40M Token`;
+</script>
+</body>
+</html>
