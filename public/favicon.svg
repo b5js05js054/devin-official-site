@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
   <title>DevinHub</title>
-  <rect width="64" height="64" rx="14" fill="#17282b"/>
-  <path fill="#d8f0e8" fill-rule="evenodd" d="M32 8.25 52.57 20.12 52.57 43.88 32 55.75 11.43 43.88 11.43 20.12Z M32 16 45.86 24 45.86 40 32 48 18.14 40 18.14 24Z"/>
+  <rect width="64" height="64" rx="14" fill="#111111"/>
+  <path fill="#ffffff" fill-rule="evenodd" d="M32 8.25 52.57 20.12 52.57 43.88 32 55.75 11.43 43.88 11.43 20.12Z M32 16 45.86 24 45.86 40 32 48 18.14 40 18.14 24Z"/>
 </svg>
