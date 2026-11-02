@@ -1,4 +1,5 @@
 import { Search } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 type CatalogModel = {
@@ -389,6 +390,9 @@ export function Pricing() {
           <div>
             <p className="max-w-3xl text-sm leading-7 text-mute">
               和客户端同一份目录。日卡走免费模型，按量从余额扣收费模型。下面是每百万 token 的现价，划线是分组倍率前的原价。
+              <Link to="/topup" className="ml-2 text-volt no-underline">
+                去充值
+              </Link>
             </p>
           </div>
           <p className="shrink-0 text-xs text-mute">

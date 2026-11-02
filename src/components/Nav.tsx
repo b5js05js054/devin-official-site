@@ -7,6 +7,7 @@ import { Logo } from './Logo'
 const links = [
   { to: '/', label: '首页' },
   { to: '/pricing', label: '计费' },
+  { to: '/topup', label: '充值' },
   { to: '/downloads', label: '下载中心' },
   { to: '/guide', label: '使用指南' },
 ]

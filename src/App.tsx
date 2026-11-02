@@ -12,6 +12,7 @@ import { Downloads } from './pages/Downloads'
 import { Guide } from './pages/Guide'
 import { Home } from './pages/Home'
 import { Pricing } from './pages/Pricing'
+import { Topup } from './pages/Topup'
 import { SiteLayout } from './pages/SiteLayout'
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
         <Route element={<SiteLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/topup" element={<Topup />} />
           <Route path="/downloads" element={<Downloads />} />
           <Route path="/guide" element={<Guide />} />
           <Route path="/guide/:slug" element={<Guide />} />

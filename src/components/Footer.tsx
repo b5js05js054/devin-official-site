@@ -20,6 +20,11 @@ export function Footer() {
               </Link>
             </li>
             <li>
+              <Link className="text-mute no-underline hover:text-ink" to="/topup">
+                充值
+              </Link>
+            </li>
+            <li>
               <Link className="text-mute no-underline hover:text-ink" to="/downloads">
                 下载中心
               </Link>
