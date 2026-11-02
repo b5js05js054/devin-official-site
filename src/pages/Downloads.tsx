@@ -18,7 +18,8 @@ export function Downloads() {
         d.notes.toLowerCase().includes(needle),
     )
   }, [downloads, q])
-  const recommended = list.find((d) => d.recommended) ?? list[0]
+  const primary = list.find((d) => d.recommended) ?? list[0]
+  const featured = primary ? list.filter((d) => d.version === primary.version) : []
 
   const trigger = (label: string, url: string) => {
     if (url) {
@@ -33,7 +34,7 @@ export function Downloads() {
       <div className="mx-auto max-w-5xl px-5 py-16">
         <h1 className="font-display text-4xl md:text-6xl">下载中心</h1>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-mute">
-          这里只列已经核对过的客户端，安装包统一从 gx.08879.cn 下载。Windows 客户端也有，未核对的版本号不写在这里。
+          选择你的系统，直接下载 DevinHub 客户端。安装包放在本站，点下去就会开始下载。
         </p>
 
         <div className="mt-10 grid gap-4 lg:grid-cols-[1.4fr_0.8fr]">
@@ -59,20 +60,32 @@ export function Downloads() {
               <p className="text-sm">推荐客户端</p>
               <span className="rounded-full bg-volt/10 px-2 py-0.5 text-[10px] text-volt">当前推荐</span>
             </div>
-            {recommended ? (
+            {featured.length ? (
               <>
-                <p className="mt-6 font-display text-3xl">v{recommended.version}</p>
-                <p className="mt-2 text-xs text-mute">
-                  {recommended.size} · {recommended.windsurfMax}
-                </p>
-                <p className="mt-1 text-xs text-mute">发布于 {recommended.releasedAt}</p>
-                <button
-                  type="button"
-                  className="mt-6 w-full rounded-full bg-volt py-2.5 text-sm text-white"
-                  onClick={() => trigger(`v${recommended.version}`, recommended.url)}
-                >
-                  下载 v{recommended.version}
-                </button>
+                <p className="mt-6 font-display text-3xl">{primary.version ? `v${primary.version}` : 'DevinHub'}</p>
+                <p className="mt-2 text-xs text-mute">{primary.notes || '当前发布的客户端'}</p>
+                <div className="mt-6 grid gap-2">
+                  {featured.map((item) =>
+                    item.url ? (
+                      <a
+                        key={item.id}
+                        href={item.url}
+                        className="block rounded-full bg-volt py-2.5 text-center text-sm text-white no-underline"
+                      >
+                        下载 {item.windsurfMax || `v${item.version}`}
+                      </a>
+                    ) : (
+                      <button
+                        key={item.id}
+                        type="button"
+                        className="rounded-full bg-volt py-2.5 text-sm text-white"
+                        onClick={() => trigger(`${item.windsurfMax || 'v' + item.version}`, item.url)}
+                      >
+                        下载 {item.windsurfMax || `v${item.version}`}
+                      </button>
+                    ),
+                  )}
+                </div>
               </>
             ) : (
               <p className="mt-8 text-sm text-mute">暂无已发布版本</p>
@@ -101,7 +114,7 @@ export function Downloads() {
               <li key={item.id} className="flex flex-wrap items-center justify-between gap-4 py-4">
                 <div>
                   <p className="text-ink">
-                    v{item.version}
+                    {item.version ? `v${item.version}` : item.windsurfMax || '客户端'}
                     <span className="ml-2 text-xs text-mute">{item.size}</span>
                     {item.recommended ? (
                       <span className="ml-2 rounded-full bg-volt/10 px-2 py-0.5 text-[10px] text-volt">
@@ -115,14 +128,24 @@ export function Downloads() {
                   </p>
                   {item.notes ? <p className="mt-1 text-xs text-mute">{item.notes}</p> : null}
                 </div>
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-full bg-volt px-4 py-2 text-sm text-white"
-                  onClick={() => trigger(`v${item.version}`, item.url)}
-                >
-                  <DownloadIcon size={14} />
-                  下载客户端
-                </button>
+                {item.url ? (
+                  <a
+                    href={item.url}
+                    className="inline-flex items-center gap-2 rounded-full bg-volt px-4 py-2 text-sm text-white no-underline"
+                  >
+                    <DownloadIcon size={14} />
+                    下载 {item.windsurfMax || '客户端'}
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-2 rounded-full bg-volt px-4 py-2 text-sm text-white"
+                    onClick={() => trigger(`v${item.version}`, item.url)}
+                  >
+                    <DownloadIcon size={14} />
+                    下载 {item.windsurfMax || '客户端'}
+                  </button>
+                )}
               </li>
             ))}
           </ul>

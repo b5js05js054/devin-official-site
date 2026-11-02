@@ -1,5 +1,5 @@
 import { Search } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 type CatalogModel = {
   id: string
@@ -145,7 +145,7 @@ function Mark({ name }: { name: string }) {
   return <img src={`/client-preview/icons/${icon}.svg`} alt="" className="h-4 w-4 object-contain" />
 }
 
-function Pick({
+function FilterLine({
   label,
   value,
   options,
@@ -154,57 +154,79 @@ function Pick({
 }: {
   label: string
   value: string
-  options: Array<{ key: string; text: string }>
+  options: Array<{ key: string; name: string; count: number }>
   withIcon?: boolean
   onChange: (key: string) => void
 }) {
-  const [open, setOpen] = useState(false)
-  const root = useRef<HTMLDivElement>(null)
-  const current = options.find((option) => option.key === value) ?? options[0]
+  const rowRef = useRef<HTMLDivElement>(null)
+  const buttonRefs = useRef(new Map<string, HTMLButtonElement>())
+  const [pill, setPill] = useState({ left: 0, top: 0, width: 0, height: 0, on: false })
 
-  useEffect(() => {
-    if (!open) return
-    const close = (event: MouseEvent) => {
-      if (!root.current?.contains(event.target as Node)) setOpen(false)
+  useLayoutEffect(() => {
+    const row = rowRef.current
+    const button = buttonRefs.current.get(value)
+    if (!row || !button) return
+    const place = () => {
+      const rowBox = row.getBoundingClientRect()
+      const buttonBox = button.getBoundingClientRect()
+      setPill((prev) => ({
+        left: buttonBox.left - rowBox.left,
+        top: buttonBox.top - rowBox.top,
+        width: buttonBox.width,
+        height: buttonBox.height,
+        on: prev.on,
+      }))
+      requestAnimationFrame(() => setPill((prev) => ({ ...prev, on: true })))
     }
-    document.addEventListener('mousedown', close)
-    return () => document.removeEventListener('mousedown', close)
-  }, [open])
+    place()
+    window.addEventListener('resize', place)
+    return () => window.removeEventListener('resize', place)
+  }, [value, options])
 
   return (
-    <div ref={root} className="relative">
-      <button
-        type="button"
-        aria-label={label}
-        aria-expanded={open}
-        onClick={() => setOpen((next) => !next)}
-        className="price-tool inline-flex h-10 min-w-36 items-center gap-2 rounded-full border border-line bg-surface px-4 text-sm text-ink"
-      >
-        {withIcon ? <Mark name={current?.key ?? 'all'} /> : null}
-        <span>{current?.text}</span>
-        <span className="ml-1 text-mute">▾</span>
-      </button>
-      {open ? (
-        <div className="absolute top-12 left-0 z-20 max-h-80 min-w-52 overflow-auto rounded-2xl border border-line bg-surface p-1 shadow-[0_16px_40px_-20px_rgb(17_20_27/0.45)]">
-          {options.map((option) => (
+    <div className="flex items-start gap-3">
+      <span className="mt-1.5 w-8 shrink-0 text-xs text-mute">{label}</span>
+      <div ref={rowRef} className="relative flex flex-1 flex-wrap gap-1" role="listbox" aria-label={label}>
+        <span
+          aria-hidden
+          className="pointer-events-none absolute rounded-full bg-ink"
+          style={{
+            left: pill.left,
+            top: pill.top,
+            width: pill.width,
+            height: pill.height,
+            transition: pill.on
+              ? 'left .55s cubic-bezier(.22,1,.36,1), top .55s cubic-bezier(.22,1,.36,1), width .55s cubic-bezier(.22,1,.36,1), height .55s cubic-bezier(.22,1,.36,1)'
+              : 'none',
+          }}
+        />
+        {options.map((option) => {
+          const selected = option.key === value
+          return (
             <button
               key={option.key}
-              type="button"
-              aria-selected={option.key === value}
-              onClick={() => {
-                onChange(option.key)
-                setOpen(false)
+              ref={(node) => {
+                if (node) buttonRefs.current.set(option.key, node)
+                else buttonRefs.current.delete(option.key)
               }}
-              className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm ${
-                option.key === value ? 'bg-sunk text-ink' : 'text-ink hover:bg-paper'
+              type="button"
+              role="option"
+              aria-selected={selected}
+              onClick={() => onChange(option.key)}
+              className={`relative z-10 inline-flex h-8 items-center gap-1.5 rounded-full px-2.5 text-[13px] ${
+                selected ? 'text-white' : 'text-ink hover:bg-sunk'
               }`}
+              style={{ transition: 'color .55s cubic-bezier(.22,1,.36,1)' }}
             >
               {withIcon ? <Mark name={option.key} /> : null}
-              <span>{option.text}</span>
+              <span>{option.name}</span>
+              <span className={`text-[11px] tabular-nums ${selected ? 'text-white/55' : 'text-mute'}`} style={{ transition: 'color .55s cubic-bezier(.22,1,.36,1)' }}>
+                {option.count}
+              </span>
             </button>
-          ))}
-        </div>
-      ) : null}
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -258,27 +280,34 @@ export function Pricing() {
   }, [])
 
   const base = useMemo(() => (freeOnly ? catalog.filter((model) => model.free) : catalog), [catalog, freeOnly])
+  const inSeries = (model: CatalogModel) => series === 'all' || seriesOf(model.id) === series
+  const inCategory = (model: CatalogModel) => category === 'all' || (model.category_name || '未分类') === category
 
   const seriesOptions = useMemo(() => {
+    const pool = base.filter(inCategory)
     const groups = SERIES.map(([title]) => ({
       title,
-      count: base.filter((model) => seriesOf(model.id) === title).length,
-    })).concat([{ title: '其他', count: base.filter((model) => seriesOf(model.id) === '其他').length }])
-    const visible = groups.filter((group) => group.count > 0)
-    return [{ key: 'all', text: `全部 ${visible.reduce((sum, group) => sum + group.count, 0)}` }].concat(
-      visible.map((group) => ({ key: group.title, text: `${group.title} ${group.count}` })),
+      count: pool.filter((model) => seriesOf(model.id) === title).length,
+    })).concat([{ title: '其他', count: pool.filter((model) => seriesOf(model.id) === '其他').length }])
+    const visible = groups.filter((group) => group.count > 0 || group.title === series)
+    return [{ key: 'all', name: '全部', count: pool.length }].concat(
+      visible.map((group) => ({ key: group.title, name: group.title, count: group.count })),
     )
-  }, [base])
+  }, [base, category, series])
 
   const categoryOptions = useMemo(() => {
+    const pool = base.filter(inSeries)
     const names = [...new Set(base.map((model) => model.category_name || '未分类'))]
-    return [{ key: 'all', text: `全部 ${base.length}` }].concat(
-      names.map((title) => ({
-        key: title,
-        text: `${title} ${base.filter((model) => (model.category_name || '未分类') === title).length}`,
-      })),
+    return [{ key: 'all', name: '全部', count: pool.length }].concat(
+      names
+        .map((title) => ({
+          key: title,
+          name: title,
+          count: pool.filter((model) => (model.category_name || '未分类') === title).length,
+        }))
+        .filter((option) => option.count > 0 || option.key === category),
     )
-  }, [base])
+  }, [base, series, category])
 
   const seriesKey = seriesOptions.some((option) => option.key === series) ? series : 'all'
   const categoryKey = categoryOptions.some((option) => option.key === category) ? category : 'all'
@@ -308,22 +337,19 @@ export function Pricing() {
 
   return (
     <div className="grid-paper">
-      <div className="mx-auto max-w-[1440px] px-5 py-12">
-        <p className="text-sm font-medium text-volt">计费</p>
-        <h1 className="mt-3 font-display text-4xl text-balance md:text-6xl">模型单价</h1>
-        <p className="mt-4 max-w-3xl text-sm leading-7 text-mute">
-          和客户端同一份目录。日卡走免费模型，按量从余额扣收费模型。下面是每百万 token 的现价，划线是分组倍率前的原价。
-        </p>
-
-        <div className="mt-8 flex flex-wrap items-center gap-2">
-          <Pick label="厂商" value={seriesKey} options={seriesOptions} withIcon onChange={setSeries} />
-          <Pick label="分组" value={categoryKey} options={categoryOptions} onChange={setCategory} />
-          <label className="price-tool inline-flex h-10 items-center gap-2 rounded-full border border-line bg-surface px-4 text-sm text-ink">
+      <div className="mx-auto max-w-6xl px-5 pt-8 pb-12">
+        <div className="rounded-3xl border border-line bg-surface px-4 py-3">
+          <FilterLine label="厂商" value={seriesKey} options={seriesOptions} withIcon onChange={setSeries} />
+          <div className="my-2.5 h-px bg-line" />
+          <FilterLine label="分组" value={categoryKey} options={categoryOptions} onChange={setCategory} />
+          <div className="my-2.5 h-px bg-line" />
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="inline-flex h-8 items-center gap-2 rounded-lg px-2.5 text-[13px] text-ink hover:bg-sunk">
             <input
               type="checkbox"
               checked={freeOnly}
               onChange={(event) => setFreeOnly(event.target.checked)}
-              className="accent-volt"
+              className="accent-ink"
             />
             仅免费
           </label>
@@ -331,36 +357,44 @@ export function Pricing() {
             type="button"
             aria-pressed={sort === 'name'}
             onClick={() => chooseSort('name')}
-            className={`price-tool h-10 rounded-full px-4 text-sm ${
-              sort === 'name' ? 'bg-volt text-white' : 'border border-line bg-surface text-ink'
+            className={`h-8 rounded-lg px-2.5 text-[13px] ${
+              sort === 'name' ? 'bg-ink font-medium text-white' : 'text-mute hover:bg-sunk hover:text-ink'
             }`}
           >
-            按名称排序{sort === 'name' ? (order === 'desc' ? ' ↓' : ' ↑') : ''}
+            名称{sort === 'name' ? (order === 'desc' ? ' ↓' : ' ↑') : ''}
           </button>
           <button
             type="button"
             aria-pressed={sort === 'price'}
             onClick={() => chooseSort('price')}
-            className={`price-tool h-10 rounded-full px-4 text-sm ${
-              sort === 'price' ? 'bg-volt text-white' : 'border border-line bg-surface text-ink'
+            className={`h-8 rounded-lg px-2.5 text-[13px] ${
+              sort === 'price' ? 'bg-ink font-medium text-white' : 'text-mute hover:bg-sunk hover:text-ink'
             }`}
           >
-            按价格排序{sort === 'price' ? (order === 'desc' ? ' ↓' : ' ↑') : ''}
+            价格{sort === 'price' ? (order === 'desc' ? ' ↓' : ' ↑') : ''}
           </button>
-          <label className="price-tool ml-auto flex h-10 min-w-64 flex-1 items-center gap-2 rounded-full border border-line bg-surface px-4 text-sm text-mute md:max-w-xs md:flex-none">
-            <Search size={15} />
+          <label className="ml-auto flex h-8 min-w-52 flex-1 items-center gap-2 rounded-lg bg-paper px-3 text-sm text-mute md:max-w-xs md:flex-none">
+            <Search size={14} />
             <input
               value={keyword}
               onChange={(event) => setKeyword(event.target.value)}
-              placeholder="搜索模型名称或 ID"
-              className="w-full bg-transparent text-ink outline-none placeholder:text-mute"
+              placeholder="搜索名称或 ID"
+              className="w-full bg-transparent text-[13px] text-ink outline-none placeholder:text-mute"
             />
           </label>
         </div>
+        </div>
 
-        <p className="mt-4 text-xs text-mute">
-          {ready ? (models.length ? `已显示 ${models.length} / ${catalog.length}` : '没有符合条件的模型') : '正在同步目录'}
-        </p>
+        <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="max-w-3xl text-sm leading-7 text-mute">
+              和客户端同一份目录。日卡走免费模型，按量从余额扣收费模型。下面是每百万 token 的现价，划线是分组倍率前的原价。
+            </p>
+          </div>
+          <p className="shrink-0 text-xs text-mute">
+            {ready ? (models.length ? `已显示 ${models.length} / ${catalog.length}` : '没有符合条件的模型') : '正在同步目录'}
+          </p>
+        </div>
 
         {ready && models.length === 0 ? (
           <p className="mt-6 rounded-3xl border border-dashed border-line px-6 py-16 text-center text-sm text-mute">
