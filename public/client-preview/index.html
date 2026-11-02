@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>白岚客户端</title>
-  <link rel="stylesheet" href="app.css?v=14">
+  <link rel="stylesheet" href="app.css?v=27">
   <style>
     html, body, .app-shell, .topbar, .workspace { background: #000 !important; }
     body::before { display: none !important; }
@@ -12,14 +12,71 @@
     .app-shell { height: 100%; }
     .workspace { height: calc(100% - 66px); }
     .page-scroll { overflow: auto; }
+    #page-home.page.active { height: 100%; min-height: 0; display: flex; flex-direction: column; }
+    #page-home .page-scroll { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 26px; }
+    #page-home .log-preview-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: transparent; border: 0; box-shadow: none; }
+    #page-home .log-preview-panel .panel-header { flex: none; margin-bottom: 12px; }
+    #page-home .log-preview-panel .preview-lines { flex: 1; min-height: 0; overflow-y: auto; align-content: start; }
     .license-chip-copy { width: auto; min-width: 0; max-width: none; gap: 6px; }
     .license-chip-copy strong { display: inline; font: inherit; }
     .hb-mini strong { width: auto; }
     .status-board[data-state="idle"] { --state: var(--warn); }
     .model-wall-empty { margin: 8px 4px 0; color: var(--muted); font-size: 13px; }
     .log-line.is-new { animation: log-in .28s ease; }
-    .brand-mark.site-mark { padding: 0; background: #111111; border-color: transparent; overflow: hidden; }
-    .brand-mark.site-mark svg { width: 30px; height: 30px; }
+    .brand-mark.site-mark { padding: 0; width: 32px; height: 32px; background: transparent; border: 0; border-radius: 8px; overflow: hidden; }
+    .brand-mark.site-mark svg { width: 32px; height: 32px; stroke: none; }
+    .status-board { position: relative; isolation: isolate; overflow: hidden; padding: 22px 20px; }
+    .status-board > *:not(.grain-field) { position: relative; z-index: 1; }
+    .grain-field { display: block; opacity: 0; position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; container-type: inline-size; transition: opacity .7s ease; }
+    .status-board[data-state="running"] .grain-field { opacity: 1; }
+    .status-board .deck-body { margin-top: 0; align-items: center; }
+    .status-board .deck-main { align-content: center; }
+    .status-board .control-buttons { display: flex; align-items: center; }
+    .status-board[data-state="running"] #startProxyBtn { display: none; }
+    .status-board:not([data-state="running"]) #stopProxyBtn { display: none; }
+    .status-board[data-state="running"] .start-option { display: none; }
+    .status-board .operation-feedback { display: none; max-height: none; opacity: 1; }
+    .status-board[data-operation="starting"] .operation-feedback,
+    .status-board[data-operation="stopping"] .operation-feedback { display: grid; }
+    .status-board .badge { transition: background-color .35s ease, color .35s ease; }
+    .grain-field span {
+      --s: 9px; position: absolute; top: var(--y); left: 0; width: var(--s); height: var(--s); margin-top: calc(var(--s) / -2);
+      animation: grain-slide var(--d) linear infinite; animation-delay: var(--delay);
+    }
+    .grain-field span:nth-child(8n+1) { --bob: 16px; }
+    .grain-field span:nth-child(8n+2) { --bob: -20px; }
+    .grain-field span:nth-child(8n+3) { --bob: 9px; }
+    .grain-field span:nth-child(8n+4) { --bob: -14px; }
+    .grain-field span:nth-child(8n+5) { --bob: 22px; }
+    .grain-field span:nth-child(8n+6) { --bob: -8px; }
+    .grain-field span:nth-child(8n+7) { --bob: 13px; }
+    .grain-field span:nth-child(8n) { --bob: -18px; }
+    .grain-field i {
+      display: block; width: 100%; height: 100%; opacity: var(--o);
+      background: color-mix(in srgb, var(--text) 78%, transparent);
+      clip-path: polygon(50% 0, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
+      animation: grain-spin var(--spin) linear infinite;
+    }
+    @keyframes grain-slide {
+      0% { transform: translate3d(-28px, 0, 0) scale(0.32); }
+      20% { transform: translate3d(calc(20cqw), var(--bob), 0) scale(0.55); }
+      45% { transform: translate3d(calc(45cqw), calc(var(--bob) * -0.45), 0) scale(0.95); }
+      70% { transform: translate3d(calc(70cqw), calc(var(--bob) * -1), 0) scale(1.6); }
+      88% { transform: translate3d(calc(88cqw), calc(var(--bob) * 0.4), 0) scale(2.2); }
+      100% { transform: translate3d(calc(100cqw + 28px), 0, 0) scale(2.7); }
+    }
+    @keyframes grain-spin {
+      from { transform: rotate(var(--a)); }
+      to { transform: rotate(calc(var(--a) + var(--turn))); }
+    }
+    .status-board .deck-body { margin-top: 0; align-items: center; }
+    .status-board .deck-side { display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 14px; min-width: 0; }
+    .status-board .status-side { width: 100%; }
+    .status-board .health-grid { width: max-content; margin-left: auto; }
+    .status-board .health-item { min-height: 32px; padding: 3px 0; justify-content: space-between; gap: 48px; }
+    .status-board .status-side .badge::before { content: none; }
+    .chip-row .chip.success { height: 24px; padding: 0 10px; color: var(--ok); background: var(--ok-soft); border-radius: 999px; }
+    .chip-row .chip.success::before { content: ""; width: 6px; height: 6px; margin-right: 6px; flex: none; background: currentColor; border-radius: 50%; }
     .profile-avatar.site-avatar { background: #111111; }
     .profile-avatar.site-avatar .avatar { display: block; }
     .profile-avatar.site-avatar .avatar svg { width: 100%; height: 100%; display: block; }
@@ -62,28 +119,29 @@
   <header class="topbar">
     <div class="brand" id="brandChip">
       <button class="brand-mark site-mark" type="button" data-go="profile" aria-label="个人主页">
-        <svg viewBox="0 0 64 64"><use href="#i-site"/></svg>
+        <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#111111"/><path fill="#ffffff" fill-rule="evenodd" d="M32 8.25 52.57 20.12 52.57 43.88 32 55.75 11.43 43.88 11.43 20.12Z M32 16 45.86 24 45.86 40 32 48 18.14 40 18.14 24Z"/></svg>
       </button>
-      <button class="brand-name" id="navUserName" type="button" data-go="profile">Devin</button>
+      <button class="brand-name" id="navUserName" type="button" data-go="profile">DevinHub</button>
     </div>
     <span class="nav-divider"></span>
     <nav class="navigation">
       <span class="nav-indicator" id="navIndicator" aria-hidden="true"></span>
-      <button class="nav-item active" type="button" data-route="home"><span class="nav-icon"><svg><use href="#i-grid"/></svg></span><span class="nav-copy"><strong>工作台</strong></span></button>
-      <button class="nav-item" type="button" data-route="models"><span class="nav-icon"><svg><use href="#i-route"/></svg></span><span class="nav-copy"><strong>模型选择</strong></span></button>
+      <button class="nav-item active" type="button" data-route="home"><span class="nav-icon"><svg><use href="#i-grid"/></svg></span><span class="nav-copy"><strong>开始</strong></span></button>
+      <button class="nav-item" type="button" data-route="models"><span class="nav-icon"><svg><use href="#i-route"/></svg></span><span class="nav-copy"><strong>模型</strong></span></button>
       <button class="nav-item" type="button" data-route="usage"><span class="nav-icon"><svg><use href="#i-chart"/></svg></span><span class="nav-copy"><strong>用量</strong></span></button>
-      <button class="nav-item" type="button" data-route="log"><span class="nav-icon"><svg><use href="#i-activity"/></svg></span><span class="nav-copy"><strong>监控日志</strong></span></button>
+      <button class="nav-item" type="button" data-route="log"><span class="nav-icon"><svg><use href="#i-activity"/></svg></span><span class="nav-copy"><strong>监控</strong></span></button>
       <button class="nav-item" type="button" data-route="config"><span class="nav-icon"><svg><use href="#i-sliders"/></svg></span><span class="nav-copy"><strong>设置</strong></span></button>
     </nav>
     <span class="nav-divider"></span>
     <div class="topbar-tools">
       <button class="license-chip" type="button">
-        <svg><use href="#i-check"/></svg>
+        <svg><use href="#i-key"/></svg>
         <span class="license-chip-copy"><span>30天</span><strong>¥128.00</strong></span>
       </button>
       <button class="hb-mini" id="hbMini" type="button" data-state="good" title="网络心跳：点击查看详情" aria-label="网络心跳">
         <svg class="hb-mini-icon"><use href="#i-pulse"/></svg>
-        <strong id="hbMiniValue">120ms</strong>
+        <span>延迟</span>
+        <strong id="hbMiniValue">129ms</strong>
       </button>
       <button class="theme-toggle" type="button" aria-label="夜间模式">
         <span class="theme-toggle-icon"><svg><use href="#i-sun"/></svg></span>
@@ -99,34 +157,123 @@
     <section class="page active" id="page-home" data-page="home">
       <div class="page-scroll">
         <article class="status-board" id="statusBoard" data-state="idle">
-          <header class="deck-head">
-            <div class="deck-title">
-              <span class="deck-icon"><svg><use href="#i-route"/></svg></span>
-              <h2 id="captureTitle">本地拦截未开启</h2>
-              <span class="status-led"></span>
-            </div>
-            <div class="deck-aside">
-              <div class="chip-row">
-                <div id="chipRow"><span class="chip">claude-fable-5</span><span class="chip success">示例授权 · 剩 30 天</span></div>
-                <div class="chip-updated"><time id="updatedAt">更新 09:12:00</time><button class="icon-button" id="refreshStatusBtn" type="button" title="刷新状态" aria-label="刷新状态"><svg><use href="#i-refresh"/></svg></button></div>
-              </div>
-            </div>
-          </header>
+          <div class="grain-field" aria-hidden="true">
+                            <span style="--y:5%;--o:0.9;--d:46s;--delay:-0.3s;--spin:34s;--a:13deg;--turn:360deg"><i></i></span>
+                            <span style="--y:42%;--o:0.55;--d:51s;--delay:-1.1s;--spin:41s;--a:60deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:79%;--o:0.8;--d:56s;--delay:-2.0s;--spin:48s;--a:107deg;--turn:360deg"><i></i></span>
+                            <span style="--y:26%;--o:0.5;--d:61s;--delay:-3.1s;--spin:55s;--a:154deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:63%;--o:0.75;--d:66s;--delay:-4.3s;--spin:62s;--a:201deg;--turn:360deg"><i></i></span>
+                            <span style="--y:10%;--o:0.85;--d:49s;--delay:-3.9s;--spin:69s;--a:248deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:47%;--o:0.45;--d:54s;--delay:-5.1s;--spin:36s;--a:295deg;--turn:360deg"><i></i></span>
+                            <span style="--y:84%;--o:0.6;--d:59s;--delay:-6.4s;--spin:43s;--a:342deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:31%;--o:0.4;--d:64s;--delay:-7.9s;--spin:50s;--a:29deg;--turn:360deg"><i></i></span>
+                            <span style="--y:68%;--o:0.7;--d:47s;--delay:-6.5s;--spin:57s;--a:76deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:15%;--o:0.8;--d:52s;--delay:-7.9s;--spin:64s;--a:123deg;--turn:360deg"><i></i></span>
+                            <span style="--y:52%;--o:0.5;--d:57s;--delay:-9.5s;--spin:71s;--a:170deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:89%;--o:0.65;--d:62s;--delay:-11.2s;--spin:38s;--a:217deg;--turn:360deg"><i></i></span>
+                            <span style="--y:36%;--o:0.55;--d:67s;--delay:-13.1s;--spin:45s;--a:264deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:73%;--o:0.35;--d:50s;--delay:-10.5s;--spin:52s;--a:311deg;--turn:360deg"><i></i></span>
+                            <span style="--y:20%;--o:0.6;--d:55s;--delay:-12.4s;--spin:59s;--a:358deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:57%;--o:0.7;--d:60s;--delay:-14.3s;--spin:66s;--a:45deg;--turn:360deg"><i></i></span>
+                            <span style="--y:94%;--o:0.8;--d:65s;--delay:-16.5s;--spin:73s;--a:92deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:41%;--o:0.45;--d:48s;--delay:-12.9s;--spin:40s;--a:139deg;--turn:360deg"><i></i></span>
+                            <span style="--y:78%;--o:0.65;--d:53s;--delay:-15.0s;--spin:47s;--a:186deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:25%;--o:0.75;--d:58s;--delay:-17.2s;--spin:54s;--a:233deg;--turn:360deg"><i></i></span>
+                            <span style="--y:62%;--o:0.5;--d:63s;--delay:-19.6s;--spin:61s;--a:280deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:9%;--o:0.6;--d:46s;--delay:-15.0s;--spin:68s;--a:327deg;--turn:360deg"><i></i></span>
+                            <span style="--y:46%;--o:0.55;--d:51s;--delay:-17.4s;--spin:35s;--a:14deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:83%;--o:0.4;--d:56s;--delay:-19.9s;--spin:42s;--a:61deg;--turn:360deg"><i></i></span>
+                            <span style="--y:30%;--o:0.9;--d:61s;--delay:-22.5s;--spin:49s;--a:108deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:67%;--o:0.55;--d:66s;--delay:-25.3s;--spin:56s;--a:155deg;--turn:360deg"><i></i></span>
+                            <span style="--y:14%;--o:0.8;--d:49s;--delay:-19.5s;--spin:63s;--a:202deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:51%;--o:0.5;--d:54s;--delay:-22.3s;--spin:70s;--a:249deg;--turn:360deg"><i></i></span>
+                            <span style="--y:88%;--o:0.75;--d:59s;--delay:-25.2s;--spin:37s;--a:296deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:35%;--o:0.85;--d:64s;--delay:-28.3s;--spin:44s;--a:343deg;--turn:360deg"><i></i></span>
+                            <span style="--y:72%;--o:0.45;--d:47s;--delay:-21.5s;--spin:51s;--a:30deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:19%;--o:0.6;--d:52s;--delay:-24.5s;--spin:58s;--a:77deg;--turn:360deg"><i></i></span>
+                            <span style="--y:56%;--o:0.4;--d:57s;--delay:-27.7s;--spin:65s;--a:124deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:93%;--o:0.7;--d:62s;--delay:-31.0s;--spin:72s;--a:171deg;--turn:360deg"><i></i></span>
+                            <span style="--y:40%;--o:0.8;--d:67s;--delay:-34.5s;--spin:39s;--a:218deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:77%;--o:0.5;--d:50s;--delay:-26.4s;--spin:46s;--a:265deg;--turn:360deg"><i></i></span>
+                            <span style="--y:24%;--o:0.65;--d:55s;--delay:-29.9s;--spin:53s;--a:312deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:61%;--o:0.55;--d:60s;--delay:-33.5s;--spin:60s;--a:359deg;--turn:360deg"><i></i></span>
+                            <span style="--y:8%;--o:0.35;--d:65s;--delay:-37.2s;--spin:67s;--a:46deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:45%;--o:0.6;--d:48s;--delay:-28.2s;--spin:34s;--a:93deg;--turn:360deg"><i></i></span>
+                            <span style="--y:82%;--o:0.7;--d:53s;--delay:-31.9s;--spin:41s;--a:140deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:29%;--o:0.8;--d:58s;--delay:-35.7s;--spin:48s;--a:187deg;--turn:360deg"><i></i></span>
+                            <span style="--y:66%;--o:0.45;--d:63s;--delay:-39.7s;--spin:55s;--a:234deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:13%;--o:0.65;--d:46s;--delay:-29.7s;--spin:62s;--a:281deg;--turn:360deg"><i></i></span>
+                            <span style="--y:50%;--o:0.75;--d:51s;--delay:-33.6s;--spin:69s;--a:328deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:87%;--o:0.5;--d:56s;--delay:-37.7s;--spin:36s;--a:15deg;--turn:360deg"><i></i></span>
+                            <span style="--y:34%;--o:0.6;--d:61s;--delay:-42.0s;--spin:43s;--a:62deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:71%;--o:0.55;--d:66s;--delay:-46.4s;--spin:50s;--a:109deg;--turn:360deg"><i></i></span>
+                            <span style="--y:18%;--o:0.4;--d:49s;--delay:-35.2s;--spin:57s;--a:156deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:55%;--o:0.55;--d:54s;--delay:-39.5s;--spin:64s;--a:203deg;--turn:360deg"><i></i></span>
+                            <span style="--y:92%;--o:0.5;--d:59s;--delay:-44.0s;--spin:71s;--a:250deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:39%;--o:0.45;--d:64s;--delay:-48.7s;--spin:38s;--a:297deg;--turn:360deg"><i></i></span>
+                            <span style="--y:76%;--o:0.6;--d:47s;--delay:-36.4s;--spin:45s;--a:344deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:23%;--o:0.4;--d:52s;--delay:-41.1s;--spin:52s;--a:31deg;--turn:360deg"><i></i></span>
+                            <span style="--y:60%;--o:0.7;--d:57s;--delay:-45.8s;--spin:59s;--a:78deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:7%;--o:0.5;--d:62s;--delay:-50.8s;--spin:66s;--a:125deg;--turn:360deg"><i></i></span>
+                            <span style="--y:44%;--o:0.65;--d:67s;--delay:-55.8s;--spin:73s;--a:172deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:81%;--o:0.55;--d:50s;--delay:-42.4s;--spin:40s;--a:219deg;--turn:360deg"><i></i></span>
+                            <span style="--y:28%;--o:0.35;--d:55s;--delay:-47.4s;--spin:47s;--a:266deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:65%;--o:0.6;--d:60s;--delay:-52.6s;--spin:54s;--a:313deg;--turn:360deg"><i></i></span>
+                            <span style="--y:12%;--o:0.7;--d:65s;--delay:-57.9s;--spin:61s;--a:0deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:49%;--o:0.8;--d:48s;--delay:-43.5s;--spin:68s;--a:47deg;--turn:360deg"><i></i></span>
+                            <span style="--y:86%;--o:0.45;--d:53s;--delay:-48.8s;--spin:35s;--a:94deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:33%;--o:0.65;--d:58s;--delay:-54.2s;--spin:42s;--a:141deg;--turn:360deg"><i></i></span>
+                            <span style="--y:70%;--o:0.5;--d:63s;--delay:-59.8s;--spin:49s;--a:188deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:17%;--o:0.6;--d:46s;--delay:-44.3s;--spin:56s;--a:235deg;--turn:360deg"><i></i></span>
+                            <span style="--y:54%;--o:0.55;--d:51s;--delay:-49.9s;--spin:63s;--a:282deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:91%;--o:0.4;--d:56s;--delay:-55.6s;--spin:70s;--a:329deg;--turn:360deg"><i></i></span>
+                            <span style="--y:8%;--o:0.40;--d:44s;--delay:-1.2s;--spin:36s;--a:20deg;--turn:360deg"><i></i></span>
+                            <span style="--y:55%;--o:0.50;--d:47s;--delay:-3.9s;--spin:41s;--a:73deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:18%;--o:0.60;--d:50s;--delay:-6.9s;--spin:46s;--a:126deg;--turn:360deg"><i></i></span>
+                            <span style="--y:65%;--o:0.70;--d:53s;--delay:-10.3s;--spin:51s;--a:179deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:28%;--o:0.80;--d:56s;--delay:-14.0s;--spin:56s;--a:232deg;--turn:360deg"><i></i></span>
+                            <span style="--y:75%;--o:0.40;--d:59s;--delay:-18.0s;--spin:61s;--a:285deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:38%;--o:0.50;--d:62s;--delay:-22.4s;--spin:66s;--a:338deg;--turn:360deg"><i></i></span>
+                            <span style="--y:85%;--o:0.60;--d:65s;--delay:-27.1s;--spin:71s;--a:31deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:48%;--o:0.70;--d:44s;--delay:-20.8s;--spin:40s;--a:84deg;--turn:360deg"><i></i></span>
+                            <span style="--y:11%;--o:0.80;--d:47s;--delay:-24.8s;--spin:45s;--a:137deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:58%;--o:0.40;--d:50s;--delay:-29.2s;--spin:50s;--a:190deg;--turn:360deg"><i></i></span>
+                            <span style="--y:21%;--o:0.50;--d:53s;--delay:-33.9s;--spin:55s;--a:243deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:68%;--o:0.60;--d:56s;--delay:-38.9s;--spin:60s;--a:296deg;--turn:360deg"><i></i></span>
+                            <span style="--y:31%;--o:0.70;--d:59s;--delay:-44.2s;--spin:65s;--a:349deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:78%;--o:0.80;--d:62s;--delay:-49.9s;--spin:70s;--a:42deg;--turn:360deg"><i></i></span>
+                            <span style="--y:41%;--o:0.40;--d:65s;--delay:-56.0s;--spin:39s;--a:95deg;--turn:-360deg"><i></i></span>
+                            <span style="--y:88%;--o:0.50;--d:44s;--delay:-40.3s;--spin:44s;--a:148deg;--turn:360deg"><i></i></span>
+                            <span style="--y:51%;--o:0.60;--d:47s;--delay:-45.7s;--spin:49s;--a:201deg;--turn:-360deg"><i></i></span>
+                        </div>
           <div class="deck-body">
             <div class="deck-main">
+              <p class="status-summary" id="statusSummary">等待启动应用级拦截。</p>
               <div class="control-buttons">
                 <button class="button control-primary" id="startProxyBtn" type="button"><svg><use href="#i-play"/></svg><span>启动拦截</span></button>
                 <button class="button control-secondary" id="stopProxyBtn" type="button" disabled><svg><use href="#i-stop"/></svg><span>停止拦截并关闭 Devin</span></button>
               </div>
               <label class="start-option"><span class="switch"><input type="checkbox" checked><span></span></span><span>启动后重启 Devin</span></label>
-            </div>
-            <aside class="status-side">
-              <div class="health-grid">
-                <div class="health-item"><div class="health-label"><span>应用级捕获</span></div><span class="badge danger" id="captureBadge">未运行</span></div>
-                <div class="health-item"><div class="health-label"><span>中继服务</span></div><span class="badge success">已连接</span></div>
-                <div class="health-item"><div class="health-label"><span>网络延迟</span></div><span class="badge success" id="latencyBadge">120 ms</span></div>
+              <div class="operation-feedback">
+                <div class="operation-copy"><span id="operationMessage">等待启动</span><strong id="operationPercent">0%</strong></div>
+                <div class="progress-track"><span id="operationProgress"></span></div>
               </div>
-            </aside>
+            </div>
+            <div class="deck-side">
+              <div class="deck-aside">
+                <div class="chip-row">
+                  <div id="chipRow"><span class="chip">授权有效 · 剩 30 天</span></div>
+                  <div class="chip-updated"><time id="updatedAt">更新 09:12:00</time><button class="icon-button" id="refreshStatusBtn" type="button" title="刷新状态" aria-label="刷新状态"><svg><use href="#i-refresh"/></svg></button></div>
+                </div>
+                <span class="badge warning" id="captureBadge" hidden>待机</span>
+              </div>
+              <aside class="status-side">
+                <div class="health-grid">
+                  <div class="health-item"><div class="health-label"><span>Devin</span></div><span class="badge danger" id="proxyBadge">未运行</span></div>
+                  <div class="health-item"><div class="health-label"><span>中继服务</span></div><span class="badge success" id="relayBadge">已连接</span></div>
+                </div>
+              </aside>
+            </div>
           </div>
         </article>
         <article class="panel log-preview-panel">
@@ -147,41 +294,31 @@
       <div class="page-scroll">
         <article class="panel route-panel">
           <div class="model-pin">
-            <div class="model-select-card">
-              <div class="model-select-main">
-                <span class="deck-icon"><svg><use href="#i-route"/></svg></span>
-                <div class="route-preview"><span>SWE-1.6</span><svg><use href="#i-arrow"/></svg><strong>claude-fable-5</strong><span class="billing-chip" id="routeBilling" data-tier="paid">高级 ×1.3</span></div>
-              </div>
-              <div class="model-options">
-                <div class="model-option"><span>思考强度</span><button class="pick-trigger" type="button"><span class="pick-value">default</span><svg><use href="#i-chevron"/></svg></button></div>
-                <div class="model-option"><span>上下文大小</span><button class="pick-trigger" type="button"><span class="pick-value">默认 (1M)</span><svg><use href="#i-chevron"/></svg></button></div>
-              </div>
-            </div>
             <div class="model-toolbar">
-              <div class="segment-control model-tabs" id="modelTabs">
-                <button type="button" data-series="all" data-label="全部">全部</button>
-                <button class="active" type="button" data-series="claude" data-label="Claude 系列">Claude 系列</button>
-                <button type="button" data-series="mimo" data-label="小米 MiMo">小米 MiMo</button>
-                <button type="button" data-series="glm" data-label="GLM">GLM</button>
-                <button type="button" data-series="other" data-label="其他">其他</button>
+              <div class="pick model-series-pick" id="modelSeriesPick">
+                <button class="pick-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="pick-value">全部 8</span>
+                  <svg aria-hidden="true"><use href="#i-chevron"/></svg>
+                </button>
+              </div>
+              <div class="pick model-category-pick" id="modelCategoryPick">
+                <button class="pick-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="pick-value">全部 8</span>
+                  <svg aria-hidden="true"><use href="#i-chevron"/></svg>
+                </button>
               </div>
               <label class="model-free-toggle"><span class="switch"><input id="modelFreeOnly" type="checkbox"><span></span></span>仅免费</label>
+              <div class="model-sort" role="group" aria-label="排序">
+                <button class="model-sort-btn" id="modelSortName" type="button" aria-pressed="false">按名称排序</button>
+                <button class="model-sort-btn" id="modelSortPrice" type="button" aria-pressed="false">按价格排序</button>
+              </div>
               <label class="search-box"><svg><use href="#i-search"/></svg><input id="modelSearch" type="search" placeholder="搜索模型名称或 ID"></label>
             </div>
           </div>
-          <div class="model-list">
-            <div class="model-wall" id="modelWall">
-              <button class="model-card selected" type="button"><span class="model-card-head"><strong>claude-fable-5</strong><span class="billing-chip">高级 ×1.3</span></span><span class="model-card-id">claude-fable-5</span><span class="model-card-caps">1M 上下文 · 输出 128K · 思考</span><svg class="model-card-check"><use href="#i-check"/></svg></button>
-              <button class="model-card" type="button"><span class="model-card-head"><strong>claude-fable-5-1</strong><span class="billing-chip">高级 ×1.3</span></span><span class="model-card-id">claude-fable-5-1</span><span class="model-card-caps">1M 上下文 · 输出 128K · 思考</span></button>
-              <button class="model-card" type="button"><span class="model-card-head"><strong>claude-haiku-4-5</strong><span class="billing-chip">高级 ×1.3</span></span><span class="model-card-id">claude-haiku-4-5-20251001</span><span class="model-card-caps">200K 上下文 · 思考</span></button>
-              <button class="model-card" type="button"><span class="model-card-head"><strong>claude-opus-4-7</strong><span class="billing-chip">高级 ×1.3</span></span><span class="model-card-id">claude-opus-4-7</span><span class="model-card-caps">1M 上下文 · 输出 128K · 思考</span></button>
-              <button class="model-card" type="button"><span class="model-card-head"><strong>claude-opus-4-8</strong><span class="billing-chip">高级 ×1.3</span></span><span class="model-card-id">claude-opus-4-8</span><span class="model-card-caps">1M 上下文 · 输出 128K · 思考</span></button>
-              <button class="model-card" type="button"><span class="model-card-head"><strong>claude-opus-5</strong><span class="billing-chip">高级 ×1.3</span></span><span class="model-card-id">claude-opus-5</span><span class="model-card-caps">1M 上下文 · 输出 128K · 思考</span></button>
-              <button class="model-card" type="button"><span class="model-card-head"><strong>claude-sonnet-4-6</strong><span class="billing-chip">高级 ×1.3</span></span><span class="model-card-id">claude-sonnet-4-6</span><span class="model-card-caps">1M 上下文 · 输出 128K · 思考</span></button>
-              <button class="model-card" type="button"><span class="model-card-head"><strong>claude-sonnet-5-5</strong><span class="billing-chip">高级 ×1.3</span></span><span class="model-card-id">claude-sonnet-5-5</span><span class="model-card-caps">1M 上下文 · 输出 128K · 思考</span></button>
-            </div>
-            <p class="model-wall-empty" id="modelWallEmpty" hidden>没有匹配的示例模型</p>
-            <small class="model-wall-hint">示例价格：每 100 万 tokens 输入 1.0000 / 输出 2.0000。页面数字均为演示，不代表真实扣费。</small>
+          <div class="model-list" id="modelList">
+            <div class="model-wall model-wall-readonly" id="modelWall"></div>
+            <p class="preview-empty" id="modelWallEmpty" hidden>没有符合条件的模型。</p>
+            <p class="model-load-hint" id="modelLoadHint"></p>
           </div>
         </article>
       </div>
@@ -189,22 +326,59 @@
 
     <section class="page usage-page" id="page-usage" data-page="usage">
       <div class="page-scroll usage-scroll">
-        <div class="usage-content" style="display:grid">
+        <div class="usage-content" id="usageContent" style="display:grid">
           <article class="panel usage-stats">
-            <div class="usage-stat is-cost"><small>总花费</small><strong class="usage-stat-value" id="usageTotal">¥12.8000</strong><span class="usage-stat-sub strong">共 24 条示例记录</span><span class="usage-stat-sub">缓存节省 ¥3.2000</span></div>
-            <div class="usage-stat is-cost"><small>今日花费</small><strong class="usage-stat-value" id="usageToday">¥1.2000</strong><span class="usage-stat-sub">6 次示例请求 · 0.4M Token</span><span class="usage-stat-sub">累计免费 10 次 · 付费 14 次</span></div>
-            <div class="usage-stat"><small>总 Token</small><strong class="usage-stat-value">2.40M</strong><span class="usage-stat-sub">输入 0.80M · 缓存 1.40M · 输出 0.20M</span></div>
-            <div class="usage-stat"><small>缓存命中率</small><strong class="usage-stat-value">60.00%</strong><span class="usage-stat-sub">示例命中 / 全部输入</span><div class="usage-meter"><span style="width:60%"></span></div></div>
+            <div class="usage-stat is-cost"><small>总花费</small><strong class="usage-stat-value" id="usageTotal">¥12.8000</strong><span class="usage-stat-sub strong" id="usageTotalRecords">共 24 条记录</span><span class="usage-stat-sub" id="usageCacheSaved">缓存节省 ¥3.2000</span></div>
+            <div class="usage-stat is-cost"><small>今日花费</small><strong class="usage-stat-value" id="usageToday">¥1.2000</strong><span class="usage-stat-sub" id="usageTodayRequests">6 次请求 · 0.40M Token</span><span class="usage-stat-sub" id="usageFreeSplit">累计免费 10 次 · 付费 14 次</span></div>
+            <div class="usage-stat"><small>总 Token</small><strong class="usage-stat-value" id="usageTotalTokens">2.40M</strong><span class="usage-stat-sub" id="usageTokenSplit">输入 0.80M · 缓存 1.40M · 输出 0.20M</span></div>
+            <div class="usage-stat"><small>缓存命中率</small><strong class="usage-stat-value" id="usageCacheRate">60.00%</strong><span class="usage-stat-sub">命中缓存 / 全部输入</span><div class="usage-meter" aria-hidden="true"><span id="usageCacheBar" style="width:60%"></span></div></div>
           </article>
           <div class="usage-board">
             <article class="panel usage-chart-panel">
-              <div class="panel-header"><div class="usage-title"><h3><svg class="section-heading-icon"><use href="#i-chart"/></svg>累计花费</h3></div></div>
-              <p class="usage-range-text" id="usageRangeText">示例区间（03-01 至 03-30）· 花费 ¥12.8000 · 24 次请求（免费 10 / 付费 14）· 2.40M Token</p>
+              <div class="panel-header">
+                <div class="usage-title"><h3><svg class="section-heading-icon"><use href="#i-route"/></svg><span id="usageChartTitle">累计花费</span></h3></div>
+                <div class="segment-control" id="usageMetric" aria-label="图表指标">
+                  <span class="segment-thumb" aria-hidden="true"></span>
+                  <button class="active" type="button" data-usage-metric="cost">花费</button>
+                  <button type="button" data-usage-metric="tokens">Token</button>
+                  <button type="button" data-usage-metric="calls">调用次数</button>
+                </div>
+              </div>
+              <p class="usage-range-text" id="usageRangeText">近 30 天（03-01 至 03-30）</p>
               <div class="usage-chart" id="usageChartWrap">
                 <svg class="usage-chart-svg" id="usageChart" role="img" aria-label="按模型堆叠的累计花费趋势图"></svg>
                 <div class="usage-tooltip" id="usageTooltip" hidden></div>
               </div>
               <ul class="usage-legend" id="usageLegend"></ul>
+            </article>
+            <article class="panel usage-records-panel">
+              <div class="panel-header">
+                <div class="usage-title">
+                  <h3><svg class="section-heading-icon"><use href="#i-history"/></svg>用量</h3>
+                  <div class="usage-time-options" id="usageRange" aria-label="统计范围">
+                    <button type="button" data-usage-days="1">1 天</button>
+                    <button type="button" data-usage-days="3">3 天</button>
+                    <button type="button" data-usage-days="7">7 天</button>
+                    <button class="active" type="button" data-usage-days="30">30 天</button>
+                  </div>
+                </div>
+              </div>
+              <div class="usage-table-wrap" id="usageTableWrap">
+                <table class="usage-table">
+                  <thead>
+                    <tr><th>时间</th><th>模型</th><th class="num">输入</th><th class="num">缓存读/写</th><th class="num">输出</th><th class="num">费用</th></tr>
+                  </thead>
+                  <tbody id="usageRows">
+                    <tr><td class="time">03-30 21:14</td><td class="model"><strong>DeepSeek V4 Flash</strong><small>deepseek-v4-flash</small></td><td class="num">1,280</td><td class="num">8,400 / 0</td><td class="num">640</td><td class="num cost">¥0.0180</td></tr>
+                    <tr><td class="time">03-30 18:02</td><td class="model"><strong>GLM-5.3</strong><small>glm-5.3</small></td><td class="num">2,040</td><td class="num">12,800 / 320</td><td class="num">1,120</td><td class="num cost">¥0.0860</td></tr>
+                    <tr><td class="time">03-29 11:36</td><td class="model"><strong>Kimi K3</strong><small>kimi-k3</small></td><td class="num">860</td><td class="num">4,200 / 0</td><td class="num">390</td><td class="num cost">¥0.0420</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="usage-pager">
+                <span id="usagePagerTotal">已显示 3 / 24 条</span>
+                <span id="usageMoreHint">滚到底部继续加载</span>
+              </div>
             </article>
           </div>
         </div>
@@ -273,9 +447,9 @@
               </button>
               <div class="profile-meta">
                 <div class="profile-name-row">
-                  <strong id="profileName">Devin</strong>
+                  <strong id="profileName">DevinHub</strong>
                   <button class="profile-name-edit" id="profileEditNameBtn" type="button">编辑</button>
-                  <input class="profile-name-input" id="profileNameInput" type="text" maxlength="20" hidden autocomplete="off" spellcheck="false" aria-label="昵称" value="Devin">
+                  <input class="profile-name-input" id="profileNameInput" type="text" maxlength="20" hidden autocomplete="off" spellcheck="false" aria-label="昵称" value="DevinHub">
                 </div>
                 <span id="profileEmail">demo@example.com</span>
                 <small class="operator-line"><span class="operator-dot admin"></span><span>示例账号</span></small>
@@ -427,7 +601,7 @@
     const name = document.getElementById("profileName");
     const input = document.getElementById("profileNameInput");
     if (event.key === "Enter") {
-      const next = input.value.trim() || "Devin";
+      const next = input.value.trim() || "DevinHub";
       name.textContent = next;
       document.getElementById("navUserName").textContent = next;
     }
@@ -464,85 +638,225 @@
       document.getElementById("heartbeatPanel")?.scrollIntoView({ behavior: "smooth", block: "center" });
     });
   });
-  const demoModels = [
-    ["mimo", "0", "demo-mimo", "高级 ×1.3", "1M 上下文 · 输出 128K · 思考"],
-    ["glm", "0", "demo-glm-1", "高级 ×1.3", "128K 上下文 · 思考"],
-    ["glm", "0", "demo-glm-2", "高级 ×1.3", "128K 上下文 · 思考"],
-    ["glm", "1", "demo-glm-free", "免费", "128K 上下文"],
-    ["glm", "0", "demo-glm-3", "高级 ×1.3", "128K 上下文 · 思考"],
-    ["other", "1", "demo-lite", "免费", "32K 上下文"],
-    ["other", "1", "demo-echo", "免费", "64K 上下文"],
-    ["other", "0", "demo-spark", "高级 ×1.3", "200K 上下文 · 思考"],
-    ["other", "0", "demo-nova", "高级 ×1.3", "200K 上下文 · 思考"],
-  ];
-  const wall = document.getElementById("modelWall");
-  demoModels.forEach(([series, free, name, price, caps]) => {
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = "model-card";
-    card.dataset.series = series;
-    card.dataset.free = free;
-    card.innerHTML = `<span class="model-card-head"><strong></strong><span class="billing-chip" data-tier="${free === "1" ? "free" : "paid"}"></span></span><span class="model-card-id"></span><span class="model-card-caps"></span>`;
-    card.querySelector("strong").textContent = name;
-    card.querySelector(".billing-chip").textContent = price;
-    card.querySelector(".model-card-id").textContent = name;
-    card.querySelector(".model-card-caps").textContent = caps;
-    wall.append(card);
-  });
-  document.querySelectorAll(".model-card").forEach((card) => {
-    if (!card.dataset.series) {
-      card.dataset.series = "claude";
-      card.dataset.free = "0";
-    }
-    if (!card.querySelector(".model-card-check")) {
-      card.insertAdjacentHTML("beforeend", '<svg class="model-card-check"><use href="#i-check"/></svg>');
-    }
-    card.addEventListener("click", () => {
-      document.querySelectorAll(".model-card").forEach((item) => item.classList.remove("selected"));
-      card.classList.add("selected");
-      const name = card.querySelector("strong").textContent;
-      const price = card.querySelector(".billing-chip");
-      document.querySelector(".route-preview strong").textContent = name;
-      const routeBilling = document.getElementById("routeBilling");
-      routeBilling.textContent = price.textContent;
-      routeBilling.dataset.tier = price.dataset.tier;
-      const current = document.querySelector("#chipRow .chip");
-      if (current) current.textContent = name;
-    });
-  });
-  const applyModelFilter = () => {
-    const series = document.querySelector("#modelTabs .active")?.dataset.series || "all";
-    const freeOnly = document.getElementById("modelFreeOnly").checked;
-    const keyword = document.getElementById("modelSearch").value.trim().toLowerCase();
-    let shown = 0;
-    document.querySelectorAll(".model-card").forEach((card) => {
-      const text = `${card.querySelector("strong").textContent} ${card.querySelector(".model-card-id").textContent}`.toLowerCase();
-      const visible = (series === "all" || card.dataset.series === series)
-        && (!freeOnly || card.dataset.free === "1")
-        && (!keyword || text.includes(keyword));
-      card.hidden = !visible;
-      if (visible) shown += 1;
-    });
-    document.getElementById("modelWallEmpty").hidden = shown > 0;
-    const counts = { all: 0, claude: 0, mimo: 0, glm: 0, other: 0 };
-    document.querySelectorAll(".model-card").forEach((card) => {
-      if (freeOnly && card.dataset.free !== "1") return;
-      counts.all += 1;
-      counts[card.dataset.series] += 1;
-    });
-    document.querySelectorAll("#modelTabs button").forEach((button) => {
-      button.textContent = `${button.dataset.label} ${counts[button.dataset.series] || 0}`;
-    });
+  const priceText = (value) => `$${Number(value || 0).toFixed(4).replace(/0+$/, "").replace(/\.$/, "")}`;
+  const formatTok = (n) => {
+    n = Number(n);
+    if (n >= 1e6 && n % 1e5 === 0) return `${n / 1e6}M`;
+    if (n >= 1000 && n % 1000 === 0) return `${n / 1000}K`;
+    return String(n);
   };
-  document.getElementById("modelTabs").addEventListener("click", (event) => {
-    const button = event.target.closest("[data-series]");
-    if (!button) return;
-    document.querySelectorAll("#modelTabs button").forEach((item) => item.classList.toggle("active", item === button));
-    applyModelFilter();
+  const SERIES = [
+    ["Claude", ["claude"]],
+    ["DeepSeek", ["deepseek"]],
+    ["Kimi", ["kimi"]],
+    ["MiMo", ["mimo"]],
+    ["Zhipu", ["glm", "zhipu"]],
+    ["MiniMax", ["minimax"]],
+    ["Qwen", ["qwen"]],
+    ["Doubao", ["doubao"]],
+    ["Hunyuan", ["hy"]],
+  ];
+  const ICONS = [["claude", "claude"], ["deepseek", "deepseek"], ["glm", "zhipu"], ["kimi", "kimi"], ["mimo", "mimo"], ["minimax", "minimax"], ["qwen", "qwen"], ["doubao", "doubao"], ["hy", "hunyuan"]];
+  const seriesOf = (id) => {
+    const name = id.toLowerCase();
+    return SERIES.find(([, prefixes]) => prefixes.some((prefix) => name.startsWith(prefix)))?.[0] || "其他";
+  };
+  const iconOf = (id) => {
+    const name = id.toLowerCase();
+    return ICONS.find(([prefix]) => name.startsWith(prefix))?.[1] || "";
+  };
+  const chipOf = (model) => {
+    if (model.free) return "免费";
+    const name = String(model.category_name || "").trim();
+    const mult = Number(model.category_multiplier);
+    if (name && mult > 0) return `${name} ×${Number(mult.toFixed(4))}`;
+    return Number(model.ratio) > 0 ? `×${Number(Number(model.ratio).toFixed(4))}` : "收费";
+  };
+  const wall = document.getElementById("modelWall");
+  let catalog = [];
+  let modelSeries = "all";
+  let modelCategory = "all";
+  let modelSort = "";
+  let modelOrder = "asc";
+  const SERIES_ICON = {
+    Claude: "icons/claude.svg",
+    DeepSeek: "icons/deepseek.svg",
+    Kimi: "icons/kimi.svg",
+    MiMo: "icons/mimo.svg",
+    Zhipu: "icons/zhipu.svg",
+    MiniMax: "icons/minimax.svg",
+    Qwen: "icons/qwen.svg",
+    Doubao: "icons/doubao.svg",
+    Hunyuan: "icons/hunyuan.svg",
+    Gemini: "icons/gemini.svg",
+    OpenAI: "icons/openai.svg",
+    Grok: "icons/grok.svg",
+  };
+  const seriesMark = (key) => {
+    if (!key || key === "all") return "";
+    if (key === "其他") return `<span class="series-other" aria-hidden="true"></span>`;
+    const src = SERIES_ICON[key];
+    return src ? `<img class="series-icon" src="${src}" alt="">` : "";
+  };
+  const fillPick = (id, current, groups, withIcon) => {
+    const pick = document.getElementById(id);
+    const menu = document.createElement("div");
+    menu.className = "pick-menu";
+    menu.hidden = true;
+    menu.setAttribute("role", "listbox");
+    const options = [{ key: "all", text: `全部 ${groups.reduce((sum, group) => sum + group.count, 0)}` }]
+      .concat(groups.filter((group) => group.count > 0).map((group) => ({ key: group.title, text: `${group.title} ${group.count}` })));
+    if (!options.some((option) => option.key === current)) current = "all";
+    options.forEach((option) => {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "pick-item";
+      item.dataset.value = option.key;
+      item.setAttribute("aria-selected", option.key === current ? "true" : "false");
+      item.innerHTML = `${withIcon ? seriesMark(option.key) : ""}<span></span>`;
+      item.querySelector("span").textContent = option.text;
+      menu.append(item);
+    });
+    pick.querySelector(".pick-menu")?.remove();
+    pick.append(menu);
+    const chosen = options.find((option) => option.key === current);
+    const value = pick.querySelector(".pick-value");
+    value.innerHTML = `${withIcon ? seriesMark(current) : ""}<span></span>`;
+    value.querySelector("span").textContent = chosen.text;
+    return current;
+  };
+  const renderCatalog = () => {
+    const freeOnly = document.getElementById("modelFreeOnly").checked;
+    const base = freeOnly ? catalog.filter((model) => model.free) : catalog;
+    const seriesGroups = SERIES.map(([title]) => ({ title, count: base.filter((model) => seriesOf(model.id) === title).length }))
+      .concat([{ title: "其他", count: base.filter((model) => seriesOf(model.id) === "其他").length }]);
+    const categories = [...new Set(base.map((model) => model.category_name || "未分类"))];
+    const categoryGroups = categories.map((title) => ({ title, count: base.filter((model) => (model.category_name || "未分类") === title).length }));
+    modelSeries = fillPick("modelSeriesPick", modelSeries, seriesGroups, true);
+    modelCategory = fillPick("modelCategoryPick", modelCategory, categoryGroups, false);
+    const keyword = document.getElementById("modelSearch").value.trim().toLowerCase();
+    const models = catalog.filter((model) => {
+      if (freeOnly && !model.free) return false;
+      if (modelSeries !== "all" && seriesOf(model.id) !== modelSeries) return false;
+      if (modelCategory !== "all" && (model.category_name || "未分类") !== modelCategory) return false;
+      const text = `${model.id} ${model.label || ""} ${model.category_name || ""}`.toLowerCase();
+      return !keyword || text.includes(keyword);
+    });
+    const dir = modelOrder === "desc" ? -1 : 1;
+    if (modelSort === "name") models.sort((a, b) => (a.label || a.id).localeCompare(b.label || b.id, "zh") * dir);
+    if (modelSort === "price") models.sort((a, b) => ((Number(a.price_in) || 0) - (Number(b.price_in) || 0)) * dir);
+    wall.replaceChildren(...models.map((model) => {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "model-card";
+      const icon = iconOf(model.id);
+      const efforts = Array.isArray(model.reasoning_efforts) ? model.reasoning_efforts : [];
+      const contexts = Array.isArray(model.context_options) ? model.context_options : [];
+      const mult = Number(model.category_multiplier);
+      const listPrice = (value) => {
+        const current = Number(value) || 0;
+        if (!(mult > 0)) return current;
+        return Math.round((current / mult) * 1e6) / 1e6;
+      };
+      const caps = [
+        model.context_window > 0 ? `${formatTok(model.context_window)} 上下文` : "",
+        model.max_output > 0 ? `最多输出 ${formatTok(model.max_output)}` : "",
+        model.supports_thinking ? "思考" : "",
+      ].filter(Boolean).join(" · ");
+      const specs = [];
+      if (contexts.length) specs.push(["上下文", contexts.map(formatTok)]);
+      if (efforts.length) specs.push(["思考", efforts]);
+      card.innerHTML = `
+        <span class="model-card-head">
+          <span class="model-card-name">${icon ? `<span class="model-vendor"><img src="icons/${icon}.svg" alt=""></span>` : `<span class="model-vendor is-unknown">?</span>`}<strong></strong></span>
+          <span class="model-card-tools"><span class="billing-chip" data-tier="${model.free ? "free" : "paid"}"></span></span>
+        </span>
+        <small class="model-card-id"></small>
+        <span class="model-price-grid">
+          ${["输入", "输出", "缓存读", "缓存写"].map((label, index) => {
+            const current = [model.price_in, model.price_out, model.price_cache, model.price_cache_write][index];
+            const list = listPrice(current);
+            const showList = priceText(list) !== priceText(current);
+            return `<span class="model-price"><i>${label}</i><strong title="现价">${priceText(current)}</strong>${showList ? `<em title="原价">${priceText(list)}</em>` : ""}</span>`;
+          }).join("")}
+        </span>
+        ${caps ? `<small class="model-card-caps"></small>` : ""}
+        ${specs.length ? `<span class="model-spec">${specs.map(([label, values]) => `<span class="model-spec-row"><b>${label}</b>${values.map((value) => `<i>${value}</i>`).join("")}</span>`).join("")}</span>` : ""}`;
+      card.querySelector("strong").textContent = model.label || model.id;
+      card.querySelector(".model-card-id").textContent = model.id;
+      card.querySelector(".billing-chip").textContent = chipOf(model);
+      if (caps) card.querySelector(".model-card-caps").textContent = caps;
+      return card;
+    }));
+    document.getElementById("modelWallEmpty").hidden = models.length > 0;
+    document.getElementById("modelLoadHint").textContent = models.length ? `已显示 ${models.length} / ${catalog.length}` : "";
+  };
+  document.getElementById("modelSeriesPick").addEventListener("click", (event) => {
+    const item = event.target.closest(".pick-item");
+    const menu = event.currentTarget.querySelector(".pick-menu");
+    if (item) {
+      modelSeries = item.dataset.value;
+      menu.hidden = true;
+      renderCatalog();
+      return;
+    }
+    if (event.target.closest(".pick-trigger") && menu) menu.hidden = !menu.hidden;
   });
-  document.getElementById("modelFreeOnly").addEventListener("change", applyModelFilter);
-  document.getElementById("modelSearch").addEventListener("input", applyModelFilter);
-  applyModelFilter();
+  document.getElementById("modelCategoryPick").addEventListener("click", (event) => {
+    const item = event.target.closest(".pick-item");
+    const menu = event.currentTarget.querySelector(".pick-menu");
+    if (item) {
+      modelCategory = item.dataset.value;
+      menu.hidden = true;
+      renderCatalog();
+      return;
+    }
+    if (event.target.closest(".pick-trigger") && menu) menu.hidden = !menu.hidden;
+  });
+  let catalogSig = "";
+  const syncCatalog = async () => {
+    let models = null;
+    try {
+      const response = await fetch("/api/catalog", { cache: "no-store" });
+      const data = await response.json();
+      if (response.ok && Array.isArray(data.models)) models = data.models;
+    } catch {}
+    if (!models) {
+      if (catalog.length) return;
+      try {
+        models = await (await fetch("models.json")).json();
+      } catch {
+        document.getElementById("modelWallEmpty").hidden = false;
+        document.getElementById("modelWallEmpty").textContent = "模型目录暂时没有载入。";
+        return;
+      }
+    }
+    const sig = JSON.stringify(models.map((model) => [model.id, model.label, model.price_in, model.price_out, model.price_cache, model.price_cache_write, model.category_name, model.category_multiplier, model.free, model.context_window, model.max_output]));
+    if (sig === catalogSig) return;
+    catalogSig = sig;
+    catalog = models;
+    renderCatalog();
+  };
+  syncCatalog();
+  setInterval(syncCatalog, 20000);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) syncCatalog();
+  });
+  const chooseSort = (key, button, label) => {
+    if (modelSort === key) modelOrder = modelOrder === "asc" ? "desc" : "asc";
+    else { modelSort = key; modelOrder = "asc"; }
+    document.querySelectorAll(".model-sort-btn").forEach((item) => {
+      item.setAttribute("aria-pressed", "false");
+      item.textContent = item.id === "modelSortName" ? "按名称排序" : "按价格排序";
+    });
+    button.setAttribute("aria-pressed", "true");
+    button.textContent = label + (modelOrder === "desc" ? " ↓" : " ↑");
+    renderCatalog();
+  };
+  document.getElementById("modelSortName").addEventListener("click", (event) => chooseSort("name", event.currentTarget, "按名称排序"));
+  document.getElementById("modelSortPrice").addEventListener("click", (event) => chooseSort("price", event.currentTarget, "按价格排序"));
+  document.getElementById("modelFreeOnly").addEventListener("change", renderCatalog);
+  document.getElementById("modelSearch").addEventListener("input", renderCatalog);
 
   let demoSeconds = 9 * 3600 + 12 * 60;
   const clock = () => {
@@ -566,16 +880,18 @@
       button.disabled = false;
     }, 700);
   });
-  const logs = [
-    { category: "success", text: "[示例] 演示环境已就绪", time: "09:12:01" },
-    { category: "relay", text: "[示例] 演示任务 #007 已进入队列", time: "09:12:04" },
-    { category: "success", text: "[示例] 演示任务 #007 已完成 · 耗时 0.8s", time: "09:12:06" },
-  ];
+  const logs = Array.from({ length: 16 }, (_, index) => {
+    const no = String(index + 1).padStart(3, "0");
+    const second = index * 4;
+    const time = `09:${String(11 + Math.floor(second / 60)).padStart(2, "0")}:${String(second % 60).padStart(2, "0")}`;
+    if (index % 2 === 0) return { category: "relay", text: `[示例] 演示任务 #${no} 已进入队列`, time };
+    return { category: "success", text: `[示例] 演示任务 #${no} 已完成 · 耗时 0.${4 + (index % 5)}s`, time };
+  });
   let logFilter = "all";
   let logQuery = "";
   let streaming = true;
   let handled = 12;
-  let demoNo = 7;
+  let demoNo = 16;
   let historyLoaded = false;
   const steps = [];
   let logTimer = 0;
@@ -615,7 +931,7 @@
       viewport.scrollTop = viewport.scrollHeight;
     }
     document.getElementById("logPreview").replaceChildren(
-      ...logs.slice(-3).reverse().map((entry) => lineNode(entry, "preview-line")),
+      ...logs.slice(-40).reverse().map((entry) => lineNode(entry, "preview-line")),
     );
   };
 
@@ -632,45 +948,72 @@
     badge.className = `badge ${tone}`;
   };
   let proxyTimer = 0;
+  let progressTimer = 0;
+  const runProgress = (message, finish) => {
+    const bar = document.getElementById("operationProgress");
+    const percent = document.getElementById("operationPercent");
+    const text = document.getElementById("operationMessage");
+    text.textContent = message;
+    let value = 8;
+    bar.style.width = "8%";
+    percent.textContent = "8%";
+    clearInterval(progressTimer);
+    progressTimer = setInterval(() => {
+      value = Math.min(88, value + 7);
+      bar.style.width = `${value}%`;
+      percent.textContent = `${value}%`;
+    }, 140);
+    clearTimeout(proxyTimer);
+    proxyTimer = setTimeout(() => {
+      clearInterval(progressTimer);
+      bar.style.width = "100%";
+      percent.textContent = "100%";
+      setTimeout(finish, 220);
+    }, 980);
+  };
   document.getElementById("startProxyBtn").addEventListener("click", () => {
     const board = document.getElementById("statusBoard");
     const start = document.getElementById("startProxyBtn");
+    if (board.dataset.state === "running" || board.dataset.operation === "starting") return;
     start.classList.add("loading");
     start.disabled = true;
     board.dataset.operation = "starting";
-    document.getElementById("captureTitle").textContent = "正在启动应用级拦截";
+    setBadge("proxyBadge", "处理中", "accent");
     setBadge("captureBadge", "启动中", "accent");
-    clearTimeout(proxyTimer);
-    proxyTimer = setTimeout(() => {
+    runProgress("正在启动本地拦截", () => {
       board.dataset.state = "running";
       board.dataset.operation = "";
-      document.getElementById("captureTitle").textContent = "本地拦截已开启";
+      setBadge("proxyBadge", "运行中", "success");
       setBadge("captureBadge", "运行中", "success");
       start.classList.remove("loading");
       document.getElementById("stopProxyBtn").disabled = false;
+      document.getElementById("operationMessage").textContent = "应用级拦截正在运行";
       pushLog({ category: "success", text: "[示例] 演示拦截已开启" });
-    }, 900);
+    });
   });
   document.getElementById("stopProxyBtn").addEventListener("click", () => {
     const board = document.getElementById("statusBoard");
     const stop = document.getElementById("stopProxyBtn");
+    if (board.dataset.state !== "running" || board.dataset.operation === "stopping") return;
     stop.classList.add("loading");
     stop.disabled = true;
     board.dataset.operation = "stopping";
-    document.getElementById("captureTitle").textContent = "正在停止拦截并关闭 Devin";
+    setBadge("proxyBadge", "处理中", "accent");
     setBadge("captureBadge", "停止中", "warning");
-    clearTimeout(proxyTimer);
-    proxyTimer = setTimeout(() => {
+    runProgress("正在停止拦截并关闭 Devin", () => {
       board.dataset.state = "idle";
       board.dataset.operation = "";
-      document.getElementById("captureTitle").textContent = "本地拦截未开启";
-      setBadge("captureBadge", "未运行", "danger");
+      setBadge("proxyBadge", "未运行", "danger");
+      setBadge("captureBadge", "待机", "warning");
       stop.classList.remove("loading");
       const start = document.getElementById("startProxyBtn");
       start.classList.remove("loading");
       start.disabled = false;
+      document.getElementById("operationProgress").style.width = "0%";
+      document.getElementById("operationPercent").textContent = "0%";
+      document.getElementById("operationMessage").textContent = "等待启动";
       pushLog({ category: "normal", text: "[示例] 演示拦截已停止" });
-    }, 900);
+    });
   });
 
   const setActivity = ({ queue, current, last }) => {
@@ -779,8 +1122,10 @@
     document.getElementById("hbQuality").textContent = label;
     document.getElementById("hbLiveText").textContent = `演示 · ${clock()}`;
     const badgeNode = document.getElementById("latencyBadge");
-    badgeNode.className = `badge ${badge}`;
-    badgeNode.textContent = `${ms} ms`;
+    if (badgeNode) {
+      badgeNode.className = `badge ${badge}`;
+      badgeNode.textContent = `${ms} ms`;
+    }
     const values = samples.map((sample) => sample.ms);
     const average = Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
     document.getElementById("hbAvg").textContent = `${average} ms`;
@@ -806,9 +1151,9 @@
   const money = (value) => `¥${value.toFixed(4)}`;
   const usageDays = Array.from({ length: 30 }, (_, index) => `03-${String(index + 1).padStart(2, "0")}`);
   const usageSeries = [
-    { label: "demo-spark", color: "#3b82f6", daily: usageDays.map((_, index) => (index < 16 ? 0.04 : 0.18 + (index - 16) * 0.04)) },
-    { label: "demo-glm-1", color: "#22c55e", daily: usageDays.map((_, index) => (index < 16 ? 0.02 : 0.12 + (index - 16) * 0.025)) },
-    { label: "demo-lite", color: "#a855f7", free: true, daily: usageDays.map((_, index) => (index % 4 === 0 ? 0.06 : 0.02)) },
+    { label: "DeepSeek V4 Flash", color: "#3b82f6", daily: usageDays.map((_, index) => (index < 16 ? 0.04 : 0.18 + (index - 16) * 0.04)) },
+    { label: "GLM-5.3", color: "#22c55e", daily: usageDays.map((_, index) => (index < 16 ? 0.02 : 0.12 + (index - 16) * 0.025)) },
+    { label: "Kimi K3", color: "#a855f7", daily: usageDays.map((_, index) => (index % 4 === 0 ? 0.06 : 0.02)) },
   ].map((item) => {
     let running = 0;
     return { ...item, cumulative: item.daily.map((value) => (running += value)) };
@@ -942,7 +1287,19 @@
   const usageToday = usageSeries.reduce((sum, item) => sum + item.daily.at(-1), 0);
   document.getElementById("usageTotal").textContent = money(usageTotal);
   document.getElementById("usageToday").textContent = money(usageToday);
-  document.getElementById("usageRangeText").textContent = `示例区间（03-01 至 03-30）· 花费 ${money(usageTotal)} · 24 次请求（免费 10 / 付费 14）· 2.40M Token`;
+  document.getElementById("usageRangeText").textContent = `近 30 天（03-01 至 03-30）· 花费 ${money(usageTotal)} · 24 次请求（免费 10 / 付费 14）· 2.40M Token（免费 0.40M / 付费 2.00M）`;
+  document.getElementById("usageMetric")?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-usage-metric]");
+    if (!button) return;
+    document.querySelectorAll("#usageMetric button").forEach((item) => item.classList.toggle("active", item === button));
+    const title = { cost: "累计花费", tokens: "累计 Token", calls: "累计调用" }[button.dataset.usageMetric];
+    document.getElementById("usageChartTitle").textContent = title;
+  });
+  document.getElementById("usageRange")?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-usage-days]");
+    if (!button) return;
+    document.querySelectorAll("#usageRange button").forEach((item) => item.classList.toggle("active", item === button));
+  });
 </script>
 </body>
 </html>

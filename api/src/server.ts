@@ -96,6 +96,26 @@ function requireAdmin(req: { cookies?: Record<string, string> }) {
 
 app.get('/api/site', async () => getSite())
 
+const LICENSE_API = (process.env.LICENSE_API_URL || 'http://devin.08879.cn:8000').replace(/\/$/, '')
+let catalogCache: { at: number; body: { ok: boolean; models: unknown[] } } | null = null
+
+app.get('/api/catalog', async (_req, reply) => {
+  const now = Date.now()
+  if (catalogCache && now - catalogCache.at < 10_000) return catalogCache.body
+  try {
+    const res = await fetch(`${LICENSE_API}/api/license/catalog`)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const body = (await res.json()) as { ok?: boolean; models?: unknown[] }
+    const next = { ok: true, models: Array.isArray(body.models) ? body.models : [] }
+    catalogCache = { at: now, body: next }
+    return next
+  } catch {
+    if (catalogCache) return catalogCache.body
+    reply.code(502)
+    return { ok: false, models: [], error: '模型目录暂时不可用' }
+  }
+})
+
 app.post('/api/admin/login', async (req, reply) => {
   const body = (req.body ?? {}) as { user?: string; password?: string }
   if (!safeEqual(body.user || '', ADMIN_USER) || !safeEqual(body.password || '', ADMIN_PASSWORD)) {

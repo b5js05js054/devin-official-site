@@ -60,7 +60,7 @@ body {
   letter-spacing: -0.015em;
 }
 
-/* 计量纸网格：页面头部背景，向下淡出；画在伪元素上，避免遮罩影响内容 */
+/* 页头蜂窝：尖顶六边形边边相接，向下淡出 */
 .grid-paper {
   position: relative;
   isolation: isolate;
@@ -72,11 +72,9 @@ body {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image:
-    linear-gradient(to right, rgb(17 20 27 / 0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(17 20 27 / 0.06) 1px, transparent 1px);
-  background-size: 32px 32px;
-  mask-image: linear-gradient(to bottom, #000 0, transparent 520px);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='31.177' height='54' viewBox='0 0 31.177 54'%3E%3Cpath fill='none' stroke='%2311141b' stroke-opacity='0.16' stroke-width='1' stroke-linejoin='miter' d='M15.588 36 L15.588 54 M15.588 36 L0 27 L0 9 L15.588 0 L31.177 9 M31.177 27 L15.588 36'/%3E%3C/svg%3E");
+  background-size: 31.177px 54px;
+  mask-image: linear-gradient(to bottom, #000 0, transparent 560px);
 }
 
 .panel {
@@ -103,6 +101,132 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .cap-in {
+    animation: none;
+  }
+}
+
+@property --lift {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+.price-card {
+  --rx: 0deg;
+  --ry: 0deg;
+  --lift: 0px;
+  position: relative;
+  z-index: 0;
+  transform: perspective(1200px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(var(--lift));
+  transition:
+    --lift 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.55s ease;
+}
+
+.price-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: radial-gradient(420px circle at var(--px, 50%) var(--py, 30%), rgb(36 70 255 / 0.14), transparent 62%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.7s ease;
+}
+
+.price-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.price-card:hover {
+  z-index: 2;
+  --lift: -6px;
+  border-color: rgb(36 70 255 / 0.35);
+  box-shadow: 0 18px 32px -24px rgb(36 70 255 / 0.4);
+}
+
+.price-card:hover::before {
+  opacity: 1;
+}
+
+.price-mark,
+.price-now,
+.price-spec {
+  transition:
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.55s ease,
+    color 0.55s ease;
+}
+
+.price-card:hover .price-mark {
+  transform: scale(1.08) rotate(-4deg);
+}
+
+.price-card:hover .price-now {
+  color: var(--color-volt);
+}
+
+.price-card:hover .price-spec {
+  background: rgb(36 70 255 / 0.1);
+}
+
+.nav-indicator {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 34px;
+  margin-top: -17px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgb(36 70 255 / 0.45);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nav-indicator.is-on {
+  opacity: 1;
+  transition:
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.3s ease;
+}
+
+.page-in {
+  animation: cap-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.price-tool {
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.45s ease,
+    box-shadow 0.45s ease;
+}
+
+.price-tool:hover {
+  transform: translateY(-2px);
+  border-color: rgb(17 20 27 / 0.28);
+  box-shadow: 0 10px 18px -14px rgb(17 20 27 / 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .price-card,
+  .price-card:hover,
+  .price-mark,
+  .price-now,
+  .price-spec,
+  .price-tool,
+  .price-tool:hover {
+    transform: none;
+    transition: none;
+  }
+
+  .nav-indicator,
+  .nav-indicator.is-on,
+  .page-in {
+    transition: none;
     animation: none;
   }
 }

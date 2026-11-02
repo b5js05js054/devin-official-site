@@ -10,6 +10,7 @@ export function Guide() {
   const groups = [...new Set(published.map((d) => d.groupName))]
 
   return (
+    <div className="grid-paper">
     <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 lg:grid-cols-[240px_1fr]">
       <aside>
         <p className="font-display text-lg">使用指南</p>
@@ -52,6 +53,7 @@ export function Guide() {
           <p className="text-mute">暂无已发布文档</p>
         )}
       </article>
+    </div>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { Menu, X } from 'lucide-react'
-import { useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { useLayoutEffect, useRef, useState } from 'react'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useContent } from '../lib/content'
 import { Logo } from './Logo'
 
@@ -13,7 +13,27 @@ const links = [
 
 export function Nav() {
   const { notice } = useContent()
+  const { pathname } = useLocation()
   const [open, setOpen] = useState(false)
+  const navRef = useRef<HTMLElement>(null)
+  const linkRefs = useRef<Array<HTMLAnchorElement | null>>([])
+  const [indicator, setIndicator] = useState({ left: 0, width: 0, on: false })
+
+  useLayoutEffect(() => {
+    const nav = navRef.current
+    if (!nav) return
+    const place = () => {
+      const active = linkRefs.current.find((el) => el?.getAttribute('aria-current') === 'page')
+      if (!active) return
+      const navBox = nav.getBoundingClientRect()
+      const box = active.getBoundingClientRect()
+      setIndicator((prev) => ({ left: box.left - navBox.left, width: box.width, on: prev.on }))
+      requestAnimationFrame(() => setIndicator((prev) => ({ ...prev, on: true })))
+    }
+    place()
+    window.addEventListener('resize', place)
+    return () => window.removeEventListener('resize', place)
+  }, [pathname])
 
   return (
     <header className="sticky top-0 z-40">
@@ -32,13 +52,23 @@ export function Nav() {
       <div className="border-b border-line bg-paper/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
           <Logo />
-          <nav className="hidden items-center gap-7 text-sm text-mute md:flex">
-            {links.map((l) => (
+          <nav ref={navRef} className="relative hidden items-center gap-1 text-sm md:flex">
+            <span
+              aria-hidden
+              className={`nav-indicator ${indicator.on ? 'is-on' : ''}`}
+              style={{ width: indicator.width, transform: `translateX(${indicator.left}px)` }}
+            />
+            {links.map((l, index) => (
               <NavLink
                 key={l.to}
                 to={l.to}
+                ref={(node) => {
+                  linkRefs.current[index] = node
+                }}
                 className={({ isActive }) =>
-                  `no-underline transition ${isActive ? 'text-ink' : 'text-mute hover:text-ink'}`
+                  `relative z-10 rounded-full px-3 py-1.5 no-underline transition-colors duration-500 ${
+                    isActive ? 'text-volt' : 'text-mute hover:text-ink'
+                  }`
                 }
                 end={l.to === '/'}
               >
@@ -70,7 +100,10 @@ export function Nav() {
                 <NavLink
                   key={l.to}
                   to={l.to}
-                  className="text-ink no-underline"
+                  end={l.to === '/'}
+                  className={({ isActive }) =>
+                    `rounded-full px-3 py-2 no-underline ${isActive ? 'bg-volt/10 text-volt' : 'text-ink'}`
+                  }
                   onClick={() => setOpen(false)}
                 >
                   {l.label}
