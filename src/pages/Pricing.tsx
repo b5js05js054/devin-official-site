@@ -2,22 +2,33 @@ import { Search } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
+type PriceTier = {
+  price_in?: number | null
+  price_out?: number | null
+  price_cache?: number | null
+  price_cache_write?: number | null
+}
+
 type CatalogModel = {
   id: string
   label?: string
   free?: boolean
+  billing_mode?: string
   ratio?: number
   price_in?: number | null
   price_out?: number | null
   price_cache?: number | null
   price_cache_write?: number | null
+  price_request?: number | null
+  tier_threshold?: number | null
+  tier_ratio?: number | null
+  price_tiers?: { active?: string; peak?: PriceTier; off?: PriceTier } | null
   category_name?: string
   category_multiplier?: number
   context_window?: number | null
   max_output?: number | null
   supports_thinking?: boolean
   reasoning_efforts?: string[] | null
-  context_options?: Array<number | string> | null
 }
 
 const SERIES: Array<[string, string[]]> = [
@@ -79,20 +90,42 @@ function priceText(value: number | null | undefined) {
     .replace(/\.$/, '')}`
 }
 
-function formatTok(value: number | string) {
+function rateText(value: number | string) {
   const n = Number(value)
-  if (!Number.isFinite(n)) return String(value)
-  if (n >= 1e6 && n % 1e5 === 0) return `${n / 1e6}M`
-  if (n >= 1000 && n % 1000 === 0) return `${n / 1000}K`
-  return String(n)
+  if (!Number.isFinite(n)) return ''
+  return `×${Number(n.toFixed(4))}`
 }
 
-function chipOf(model: CatalogModel) {
-  if (model.free) return '免费'
+function rateKey(model: CatalogModel) {
+  const mult = Number(model.category_multiplier)
+  if (!(mult > 0)) return ''
+  return String(Number(mult.toFixed(4)))
+}
+
+function fullCount(value: number | null | undefined) {
+  const n = Number(value)
+  if (!(n > 0)) return ''
+  return n.toLocaleString('en-US')
+}
+
+function modelTags(model: CatalogModel) {
+  if (model.free) return [{ kind: 'free', text: '免费' }]
+  if (model.billing_mode === 'request') {
+    const price = Number(model.price_request)
+    const tags = [{ kind: 'group', text: '按次' }]
+    if (price > 0) tags.push({ kind: 'rate', text: String(Number(price.toFixed(4))) })
+    return tags
+  }
   const name = String(model.category_name || '').trim()
   const mult = Number(model.category_multiplier)
-  if (name && mult > 0) return `${name} ×${Number(mult.toFixed(4))}`
-  return Number(model.ratio) > 0 ? `×${Number(Number(model.ratio).toFixed(4))}` : '收费'
+  const tags: Array<{ kind: string; text: string }> = []
+  if (name) tags.push({ kind: 'group', text: name })
+  if (mult > 0) tags.push({ kind: 'rate', text: rateText(mult) })
+  if (!tags.length) {
+    const ratio = Number(model.ratio)
+    tags.push(ratio > 0 ? { kind: 'rate', text: rateText(ratio) } : { kind: 'group', text: '收费' })
+  }
+  return tags
 }
 
 function listPrice(value: number | null | undefined, multiplier: number) {
@@ -241,6 +274,7 @@ export function Pricing() {
   const [ready, setReady] = useState(false)
   const [series, setSeries] = useState('all')
   const [category, setCategory] = useState('all')
+  const [rate, setRate] = useState('all')
   const [freeOnly, setFreeOnly] = useState(false)
   const [sort, setSort] = useState<'' | 'name' | 'price'>('')
   const [order, setOrder] = useState<'asc' | 'desc'>('asc')
@@ -287,9 +321,10 @@ export function Pricing() {
   const base = useMemo(() => (freeOnly ? catalog.filter((model) => model.free) : catalog), [catalog, freeOnly])
   const inSeries = (model: CatalogModel) => series === 'all' || seriesOf(model.id) === series
   const inCategory = (model: CatalogModel) => category === 'all' || (model.category_name || '未分类') === category
+  const inRate = (model: CatalogModel) => rate === 'all' || rateKey(model) === rate
 
   const seriesOptions = useMemo(() => {
-    const pool = base.filter(inCategory)
+    const pool = base.filter((model) => inCategory(model) && inRate(model))
     const groups = SERIES.map(([title]) => ({
       title,
       count: pool.filter((model) => seriesOf(model.id) === title).length,
@@ -298,10 +333,10 @@ export function Pricing() {
     return [{ key: 'all', name: '全部', count: pool.length }].concat(
       visible.map((group) => ({ key: group.title, name: group.title, count: group.count })),
     )
-  }, [base, category, series])
+  }, [base, category, rate, series])
 
   const categoryOptions = useMemo(() => {
-    const pool = base.filter(inSeries)
+    const pool = base.filter((model) => inSeries(model) && inRate(model))
     const names = [...new Set(base.map((model) => model.category_name || '未分类'))]
     return [{ key: 'all', name: '全部', count: pool.length }].concat(
       names
@@ -312,10 +347,27 @@ export function Pricing() {
         }))
         .filter((option) => option.count > 0 || option.key === category),
     )
-  }, [base, series, category])
+  }, [base, series, rate, category])
+
+  const rateOptions = useMemo(() => {
+    const pool = base.filter((model) => inSeries(model) && inCategory(model))
+    const keys = [...new Set(pool.map(rateKey).filter(Boolean))]
+    if (rate !== 'all' && !keys.includes(rate)) keys.push(rate)
+    keys.sort((a, b) => Number(a) - Number(b))
+    return [{ key: 'all', name: '全部', count: pool.length }].concat(
+      keys
+        .map((key) => ({
+          key,
+          name: rateText(key),
+          count: pool.filter((model) => rateKey(model) === key).length,
+        }))
+        .filter((option) => option.count > 0 || option.key === rate),
+    )
+  }, [base, series, category, rate])
 
   const seriesKey = seriesOptions.some((option) => option.key === series) ? series : 'all'
   const categoryKey = categoryOptions.some((option) => option.key === category) ? category : 'all'
+  const rateFilterKey = rateOptions.some((option) => option.key === rate) ? rate : 'all'
 
   const models = useMemo(() => {
     const query = keyword.trim().toLowerCase()
@@ -323,6 +375,7 @@ export function Pricing() {
       if (freeOnly && !model.free) return false
       if (seriesKey !== 'all' && seriesOf(model.id) !== seriesKey) return false
       if (categoryKey !== 'all' && (model.category_name || '未分类') !== categoryKey) return false
+      if (rateFilterKey !== 'all' && rateKey(model) !== rateFilterKey) return false
       const text = `${model.id} ${model.label || ''} ${model.category_name || ''}`.toLowerCase()
       return !query || text.includes(query)
     })
@@ -330,7 +383,7 @@ export function Pricing() {
     if (sort === 'name') next.sort((a, b) => (a.label || a.id).localeCompare(b.label || b.id, 'zh') * dir)
     if (sort === 'price') next.sort((a, b) => ((Number(a.price_in) || 0) - (Number(b.price_in) || 0)) * dir)
     return next
-  }, [catalog, freeOnly, seriesKey, categoryKey, keyword, sort, order])
+  }, [catalog, freeOnly, seriesKey, categoryKey, rateFilterKey, keyword, sort, order])
 
   const chooseSort = (key: 'name' | 'price') => {
     if (sort === key) setOrder((current) => (current === 'asc' ? 'desc' : 'asc'))
@@ -347,6 +400,8 @@ export function Pricing() {
           <FilterLine label="厂商" value={seriesKey} options={seriesOptions} withIcon onChange={setSeries} />
           <div className="my-2.5 h-px bg-line" />
           <FilterLine label="分组" value={categoryKey} options={categoryOptions} onChange={setCategory} />
+          <div className="my-2.5 h-px bg-line" />
+          <FilterLine label="倍率" value={rateFilterKey} options={rateOptions} onChange={setRate} />
           <div className="my-2.5 h-px bg-line" />
         <div className="flex flex-wrap items-center gap-2">
           <label className="inline-flex h-8 items-center gap-2 rounded-lg px-2.5 text-[13px] text-ink hover:bg-sunk">
@@ -413,16 +468,22 @@ export function Pricing() {
             {models.map((model) => {
               const icon = iconOf(model.id)
               const multiplier = Number(model.category_multiplier)
+              const tiers = model.price_tiers
+              const hasTiers = Boolean(tiers?.peak && tiers?.off)
+              const activeKey = tiers?.active === 'off' ? 'off' : 'peak'
               const prices = [model.price_in, model.price_out, model.price_cache, model.price_cache_write]
-              const caps = [
-                model.context_window ? `${formatTok(model.context_window)} 上下文` : '',
-                model.max_output ? `最多输出 ${formatTok(model.max_output)}` : '',
-                model.supports_thinking ? '思考' : '',
-              ]
-                .filter(Boolean)
-                .join(' · ')
-              const contexts = Array.isArray(model.context_options) ? model.context_options : []
+              const tierRows = hasTiers
+                ? [
+                    { key: 'peak', values: [tiers?.peak?.price_in, tiers?.peak?.price_out, tiers?.peak?.price_cache, tiers?.peak?.price_cache_write] },
+                    { key: 'off', values: [tiers?.off?.price_in, tiers?.off?.price_out, tiers?.off?.price_cache, tiers?.off?.price_cache_write] },
+                  ]
+                : []
+              const activeValues = hasTiers ? (activeKey === 'off' ? tierRows[1].values : tierRows[0].values) : prices
               const efforts = Array.isArray(model.reasoning_efforts) ? model.reasoning_efforts : []
+              const context = fullCount(model.context_window)
+              const output = fullCount(model.max_output)
+              const threshold = Number(model.tier_threshold)
+              const tierRatio = Number(model.tier_ratio)
               return (
                 <article
                   key={model.id}
@@ -430,66 +491,85 @@ export function Pricing() {
                   onMouseMove={(event) => tiltCard(event.currentTarget, event)}
                   onMouseLeave={(event) => resetCard(event.currentTarget)}
                 >
-                  <div className="relative flex items-start justify-between gap-3">
-                    <h2 className="flex min-w-0 items-start gap-2 font-display text-xl leading-tight text-ink">
-                      {icon ? (
-                        <img src={`/client-preview/icons/${icon}.svg`} alt="" className="price-mark mt-1 h-[18px] w-[18px] object-contain" />
-                      ) : (
-                        <span className="price-mark mt-1 grid h-[18px] w-[18px] place-items-center rounded-md bg-sunk text-xs text-mute">?</span>
-                      )}
-                      <span>{model.label || model.id}</span>
-                    </h2>
-                    <span
-                      className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
-                        model.free ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900'
-                      }`}
-                    >
-                      {chipOf(model)}
-                    </span>
+                  <h2 className="relative flex min-w-0 items-start gap-2 font-display text-xl leading-tight text-ink">
+                    {icon ? (
+                      <img src={`/client-preview/icons/${icon}.svg`} alt="" className="price-mark mt-1 h-[18px] w-[18px] object-contain" />
+                    ) : (
+                      <span className="price-mark mt-1 grid h-[18px] w-[18px] place-items-center rounded-md bg-sunk text-xs text-mute">?</span>
+                    )}
+                    <span>{model.label || model.id}</span>
+                  </h2>
+                  <div className="relative mt-2 flex flex-wrap gap-1.5">
+                    {modelTags(model).map((tag) => (
+                      <span
+                        key={`${tag.kind}-${tag.text}`}
+                        className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                          tag.kind === 'free'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : tag.kind === 'rate'
+                              ? 'bg-sunk text-mute'
+                              : 'bg-amber-100 text-amber-900'
+                        }`}
+                      >
+                        {tag.text}
+                      </span>
+                    ))}
                   </div>
-                  <p className="relative mt-2 font-mono text-xs text-mute">{model.id}</p>
-                  <div className="relative mt-4 grid grid-cols-4 gap-2">
-                    {PRICE_LABELS.map((label, index) => {
-                      const current = prices[index]
-                      const list = listPrice(current, multiplier)
-                      const showList = priceText(list) !== priceText(current)
-                      return (
-                        <div key={label} className="min-w-0">
-                          <p className="text-[11px] text-mute">{label}</p>
-                          <p className="price-now font-medium text-ink tabular-nums">{priceText(current)}</p>
-                          {showList ? (
-                            <p className="text-[11px] text-mute line-through tabular-nums" title="原价">
-                              {priceText(list)}
+                  <div className="relative mt-4 grid grid-cols-4 gap-x-2 gap-y-1">
+                    {PRICE_LABELS.map((label) => (
+                      <p key={label} className="text-[11px] text-mute">{label}</p>
+                    ))}
+                    {hasTiers
+                      ? tierRows.map((row) =>
+                          row.values.map((value, index) => (
+                            <p
+                              key={`${row.key}-${PRICE_LABELS[index]}`}
+                              className={`rounded-md px-1 font-medium tabular-nums ${
+                                row.key === activeKey ? 'bg-amber-100 text-ink' : 'text-mute'
+                              }`}
+                            >
+                              {priceText(value)}
                             </p>
-                          ) : null}
-                        </div>
+                          )),
+                        )
+                      : prices.map((value, index) => (
+                          <p key={PRICE_LABELS[index]} className="price-now font-medium text-ink tabular-nums">
+                            {priceText(value)}
+                          </p>
+                        ))}
+                    {activeValues.map((value, index) => {
+                      const list = listPrice(value, multiplier)
+                      const showList = priceText(list) !== priceText(value)
+                      return (
+                        <p key={`list-${PRICE_LABELS[index]}`} className="text-[11px] text-mute line-through tabular-nums" title="原价">
+                          {showList ? priceText(list) : ''}
+                        </p>
                       )
                     })}
                   </div>
-                  {caps ? <p className="relative mt-4 text-xs text-mute">{caps}</p> : null}
-                  {contexts.length || efforts.length ? (
-                    <div className="relative mt-3 grid gap-2">
-                      {contexts.length ? (
-                        <p className="flex flex-wrap items-center gap-1 text-[11px] text-mute">
-                          <span className="mr-1">上下文</span>
-                          {contexts.map((value) => (
-                            <span key={String(value)} className="price-spec rounded-full bg-sunk px-2 py-0.5 text-ink">
-                              {formatTok(value)}
-                            </span>
-                          ))}
-                        </p>
-                      ) : null}
-                      {efforts.length ? (
-                        <p className="flex flex-wrap items-center gap-1 text-[11px] text-mute">
-                          <span className="mr-1">思考</span>
-                          {efforts.map((value) => (
-                            <span key={value} className="price-spec rounded-full bg-sunk px-2 py-0.5 text-ink">
-                              {value}
-                            </span>
-                          ))}
-                        </p>
-                      ) : null}
-                    </div>
+                  {hasTiers ? (
+                    <p className="relative mt-3 text-[11px] text-mute">高峰：工作日 09:00–12:00、14:00–18:00</p>
+                  ) : null}
+                  {threshold > 0 && tierRatio > 0 ? (
+                    <p className="relative mt-2 text-[11px] text-mute">
+                      输入超过 {threshold.toLocaleString('en-US')}，整单 {rateText(tierRatio)}
+                    </p>
+                  ) : null}
+                  {context || output ? (
+                    <p className="relative mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-mute">
+                      {context ? <span><b className="mr-1 font-medium text-ink">最大上下文</b>{context}</span> : null}
+                      {output ? <span><b className="mr-1 font-medium text-ink">最大输出</b>{output}</span> : null}
+                    </p>
+                  ) : null}
+                  {efforts.length ? (
+                    <p className="relative mt-2 flex flex-wrap items-center gap-1 text-[11px] text-mute">
+                      <span className="mr-1">思考</span>
+                      {efforts.map((value) => (
+                        <span key={value} className="price-spec rounded-full bg-sunk px-2 py-0.5 text-ink">
+                          {value}
+                        </span>
+                      ))}
+                    </p>
                   ) : null}
                 </article>
               )

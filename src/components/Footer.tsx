@@ -59,7 +59,7 @@ export function Footer() {
         <div>
           <p className="text-sm font-semibold text-ink">关于</p>
           <p className="mt-4 text-sm leading-6 text-mute">
-            单文件 Go 中继，无第三方运行时依赖。协议适配、卡密、审核与结算在同一条链路上完成。
+            协议适配、卡密、审核与结算在同一条链路上完成。
           </p>
         </div>
       </div>

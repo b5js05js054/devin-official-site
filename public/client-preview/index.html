@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>白岚客户端</title>
-  <link rel="stylesheet" href="app.css?v=27">
+  <link rel="stylesheet" href="app.css?v=32">
   <style>
     html, body, .app-shell, .topbar, .workspace { background: #000 !important; }
     body::before { display: none !important; }
@@ -19,7 +19,7 @@
     #page-home .log-preview-panel .preview-lines { flex: 1; min-height: 0; overflow-y: auto; align-content: start; }
     .license-chip-copy { width: auto; min-width: 0; max-width: none; gap: 6px; }
     .license-chip-copy strong { display: inline; font: inherit; }
-    .hb-mini strong { width: auto; }
+    #hbMini[hidden] { display: none; }
     .status-board[data-state="idle"] { --state: var(--warn); }
     .model-wall-empty { margin: 8px 4px 0; color: var(--muted); font-size: 13px; }
     .log-line.is-new { animation: log-in .28s ease; }
@@ -129,7 +129,7 @@
       <button class="nav-item active" type="button" data-route="home"><span class="nav-icon"><svg><use href="#i-grid"/></svg></span><span class="nav-copy"><strong>开始</strong></span></button>
       <button class="nav-item" type="button" data-route="models"><span class="nav-icon"><svg><use href="#i-route"/></svg></span><span class="nav-copy"><strong>模型</strong></span></button>
       <button class="nav-item" type="button" data-route="usage"><span class="nav-icon"><svg><use href="#i-chart"/></svg></span><span class="nav-copy"><strong>用量</strong></span></button>
-      <button class="nav-item" type="button" data-route="log"><span class="nav-icon"><svg><use href="#i-activity"/></svg></span><span class="nav-copy"><strong>监控</strong></span></button>
+      <button class="nav-item" type="button" data-route="log" data-hb="good"><span class="nav-icon"><svg><use href="#i-pulse"/></svg></span><span class="nav-copy"><strong>监控</strong></span></button>
       <button class="nav-item" type="button" data-route="config"><span class="nav-icon"><svg><use href="#i-sliders"/></svg></span><span class="nav-copy"><strong>设置</strong></span></button>
     </nav>
     <span class="nav-divider"></span>
@@ -138,7 +138,7 @@
         <svg><use href="#i-key"/></svg>
         <span class="license-chip-copy"><span>30天</span><strong>¥128.00</strong></span>
       </button>
-      <button class="hb-mini" id="hbMini" type="button" data-state="good" title="网络心跳：点击查看详情" aria-label="网络心跳">
+      <button class="hb-mini" id="hbMini" type="button" data-state="good" title="网络心跳：点击查看详情" aria-label="网络心跳" hidden>
         <svg class="hb-mini-icon"><use href="#i-pulse"/></svg>
         <span>延迟</span>
         <strong id="hbMiniValue">129ms</strong>
@@ -294,19 +294,23 @@
       <div class="page-scroll">
         <article class="panel route-panel">
           <div class="model-pin">
-            <div class="model-toolbar">
-              <div class="pick model-series-pick" id="modelSeriesPick">
-                <button class="pick-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
-                  <span class="pick-value">全部 8</span>
-                  <svg aria-hidden="true"><use href="#i-chevron"/></svg>
-                </button>
-              </div>
-              <div class="pick model-category-pick" id="modelCategoryPick">
-                <button class="pick-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
-                  <span class="pick-value">全部 8</span>
-                  <svg aria-hidden="true"><use href="#i-chevron"/></svg>
-                </button>
-              </div>
+            <div class="model-filters" id="modelFilters">
+            <div class="model-filter-line">
+              <span class="model-filter-label">厂商</span>
+              <div class="model-filter-row" id="modelSeriesRow" role="listbox" aria-label="厂商"></div>
+            </div>
+            <div class="model-filter-rule"></div>
+            <div class="model-filter-line">
+              <span class="model-filter-label">分组</span>
+              <div class="model-filter-row" id="modelCategoryRow" role="listbox" aria-label="分组"></div>
+            </div>
+            <div class="model-filter-rule"></div>
+            <div class="model-filter-line">
+              <span class="model-filter-label">倍率</span>
+              <div class="model-filter-row" id="modelRateRow" role="listbox" aria-label="倍率"></div>
+            </div>
+            <div class="model-filter-rule"></div>
+            <div class="model-filter-tools">
               <label class="model-free-toggle"><span class="switch"><input id="modelFreeOnly" type="checkbox"><span></span></span>仅免费</label>
               <div class="model-sort" role="group" aria-label="排序">
                 <button class="model-sort-btn" id="modelSortName" type="button" aria-pressed="false">按名称排序</button>
@@ -314,6 +318,7 @@
               </div>
               <label class="search-box"><svg><use href="#i-search"/></svg><input id="modelSearch" type="search" placeholder="搜索模型名称或 ID"></label>
             </div>
+          </div>
           </div>
           <div class="model-list" id="modelList">
             <div class="model-wall model-wall-readonly" id="modelWall"></div>
@@ -647,6 +652,7 @@
   };
   const SERIES = [
     ["Claude", ["claude"]],
+    ["GPT", ["gpt", "openai", "chatgpt"]],
     ["DeepSeek", ["deepseek"]],
     ["Kimi", ["kimi"]],
     ["MiMo", ["mimo"]],
@@ -656,7 +662,7 @@
     ["Doubao", ["doubao"]],
     ["Hunyuan", ["hy"]],
   ];
-  const ICONS = [["claude", "claude"], ["deepseek", "deepseek"], ["glm", "zhipu"], ["kimi", "kimi"], ["mimo", "mimo"], ["minimax", "minimax"], ["qwen", "qwen"], ["doubao", "doubao"], ["hy", "hunyuan"]];
+  const ICONS = [["claude", "claude"], ["gpt", "openai"], ["openai", "openai"], ["deepseek", "deepseek"], ["glm", "zhipu"], ["kimi", "kimi"], ["mimo", "mimo"], ["minimax", "minimax"], ["qwen", "qwen"], ["doubao", "doubao"], ["hy", "hunyuan"]];
   const seriesOf = (id) => {
     const name = id.toLowerCase();
     return SERIES.find(([, prefixes]) => prefixes.some((prefix) => name.startsWith(prefix)))?.[0] || "其他";
@@ -676,10 +682,12 @@
   let catalog = [];
   let modelSeries = "all";
   let modelCategory = "all";
+  let modelRate = "all";
   let modelSort = "";
   let modelOrder = "asc";
   const SERIES_ICON = {
     Claude: "icons/claude.svg",
+    GPT: "icons/openai.svg",
     DeepSeek: "icons/deepseek.svg",
     Kimi: "icons/kimi.svg",
     MiMo: "icons/mimo.svg",
@@ -698,47 +706,78 @@
     const src = SERIES_ICON[key];
     return src ? `<img class="series-icon" src="${src}" alt="">` : "";
   };
-  const fillPick = (id, current, groups, withIcon) => {
-    const pick = document.getElementById(id);
-    const menu = document.createElement("div");
-    menu.className = "pick-menu";
-    menu.hidden = true;
-    menu.setAttribute("role", "listbox");
-    const options = [{ key: "all", text: `全部 ${groups.reduce((sum, group) => sum + group.count, 0)}` }]
-      .concat(groups.filter((group) => group.count > 0).map((group) => ({ key: group.title, text: `${group.title} ${group.count}` })));
+  const rateKey = (model) => {
+    const mult = Number(model?.category_multiplier);
+    if (!(mult > 0)) return "";
+    return String(Number(mult.toFixed(4)));
+  };
+  const renderFilterLine = (row, options, current, withIcon) => {
+    if (!row) return current;
     if (!options.some((option) => option.key === current)) current = "all";
+    row.replaceChildren();
+    const pill = document.createElement("span");
+    pill.className = "model-filter-pill";
+    pill.setAttribute("aria-hidden", "true");
+    row.append(pill);
     options.forEach((option) => {
-      const item = document.createElement("button");
-      item.type = "button";
-      item.className = "pick-item";
-      item.dataset.value = option.key;
-      item.setAttribute("aria-selected", option.key === current ? "true" : "false");
-      item.innerHTML = `${withIcon ? seriesMark(option.key) : ""}<span></span>`;
-      item.querySelector("span").textContent = option.text;
-      menu.append(item);
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "model-filter-chip";
+      button.dataset.key = option.key;
+      button.setAttribute("role", "option");
+      button.setAttribute("aria-selected", String(option.key === current));
+      if (withIcon) {
+        const mark = seriesMark(option.key);
+        if (mark) button.insertAdjacentHTML("beforeend", mark);
+      }
+      const name = document.createElement("span");
+      name.textContent = option.name;
+      const count = document.createElement("span");
+      count.className = "model-filter-count";
+      count.textContent = String(option.count);
+      button.append(name, count);
+      row.append(button);
     });
-    pick.querySelector(".pick-menu")?.remove();
-    pick.append(menu);
-    const chosen = options.find((option) => option.key === current);
-    const value = pick.querySelector(".pick-value");
-    value.innerHTML = `${withIcon ? seriesMark(current) : ""}<span></span>`;
-    value.querySelector("span").textContent = chosen.text;
+    requestAnimationFrame(() => {
+      const selected = row.querySelector('[aria-selected="true"]');
+      if (!selected) return;
+      pill.style.left = `${selected.offsetLeft}px`;
+      pill.style.top = `${selected.offsetTop}px`;
+      pill.style.width = `${selected.offsetWidth}px`;
+      pill.style.height = `${selected.offsetHeight}px`;
+      row.classList.add("is-placed");
+    });
     return current;
   };
   const renderCatalog = () => {
     const freeOnly = document.getElementById("modelFreeOnly").checked;
     const base = freeOnly ? catalog.filter((model) => model.free) : catalog;
-    const seriesGroups = SERIES.map(([title]) => ({ title, count: base.filter((model) => seriesOf(model.id) === title).length }))
-      .concat([{ title: "其他", count: base.filter((model) => seriesOf(model.id) === "其他").length }]);
+    const inSeries = (model) => modelSeries === "all" || seriesOf(model.id) === modelSeries;
+    const inCategory = (model) => modelCategory === "all" || (model.category_name || "未分类") === modelCategory;
+    const inRate = (model) => modelRate === "all" || rateKey(model) === modelRate;
+    const seriesPool = base.filter((model) => inCategory(model) && inRate(model));
+    const seriesGroups = SERIES.map(([title]) => ({ title, count: seriesPool.filter((model) => seriesOf(model.id) === title).length }))
+      .concat([{ title: "其他", count: seriesPool.filter((model) => seriesOf(model.id) === "其他").length }])
+      .filter((group) => group.count > 0);
+    modelSeries = renderFilterLine(document.getElementById("modelSeriesRow"), [{ key: "all", name: "全部", count: seriesPool.length }].concat(seriesGroups.map((group) => ({ key: group.title, name: group.title, count: group.count }))), modelSeries, true);
+    const categoryPool = base.filter((model) => inSeries(model) && inRate(model));
     const categories = [...new Set(base.map((model) => model.category_name || "未分类"))];
-    const categoryGroups = categories.map((title) => ({ title, count: base.filter((model) => (model.category_name || "未分类") === title).length }));
-    modelSeries = fillPick("modelSeriesPick", modelSeries, seriesGroups, true);
-    modelCategory = fillPick("modelCategoryPick", modelCategory, categoryGroups, false);
+    const categoryOptions = [{ key: "all", name: "全部", count: categoryPool.length }].concat(
+      categories.map((title) => ({ key: title, name: title, count: categoryPool.filter((model) => (model.category_name || "未分类") === title).length })).filter((option) => option.count > 0),
+    );
+    modelCategory = renderFilterLine(document.getElementById("modelCategoryRow"), categoryOptions, modelCategory, false);
+    const ratePool = base.filter((model) => inSeries(model) && inCategory(model));
+    const rateKeys = [...new Set(ratePool.map(rateKey).filter(Boolean))].sort((a, b) => Number(a) - Number(b));
+    const rateOptions = [{ key: "all", name: "全部", count: ratePool.length }].concat(
+      rateKeys.map((key) => ({ key, name: `×${Number(Number(key).toFixed(4))}`, count: ratePool.filter((model) => rateKey(model) === key).length })),
+    );
+    modelRate = renderFilterLine(document.getElementById("modelRateRow"), rateOptions, modelRate, false);
     const keyword = document.getElementById("modelSearch").value.trim().toLowerCase();
     const models = catalog.filter((model) => {
       if (freeOnly && !model.free) return false;
       if (modelSeries !== "all" && seriesOf(model.id) !== modelSeries) return false;
       if (modelCategory !== "all" && (model.category_name || "未分类") !== modelCategory) return false;
+      if (modelRate !== "all" && rateKey(model) !== modelRate) return false;
       const text = `${model.id} ${model.label || ""} ${model.category_name || ""}`.toLowerCase();
       return !keyword || text.includes(keyword);
     });
@@ -751,67 +790,91 @@
       card.className = "model-card";
       const icon = iconOf(model.id);
       const efforts = Array.isArray(model.reasoning_efforts) ? model.reasoning_efforts : [];
-      const contexts = Array.isArray(model.context_options) ? model.context_options : [];
       const mult = Number(model.category_multiplier);
+      const rateText = (value) => {
+        const n = Number(value);
+        return Number.isFinite(n) ? `×${Number(n.toFixed(4))}` : "";
+      };
+      const fullCount = (value) => {
+        const n = Number(value);
+        return n > 0 ? n.toLocaleString("en-US") : "";
+      };
       const listPrice = (value) => {
         const current = Number(value) || 0;
         if (!(mult > 0)) return current;
         return Math.round((current / mult) * 1e6) / 1e6;
       };
-      const caps = [
-        model.context_window > 0 ? `${formatTok(model.context_window)} 上下文` : "",
-        model.max_output > 0 ? `最多输出 ${formatTok(model.max_output)}` : "",
-        model.supports_thinking ? "思考" : "",
-      ].filter(Boolean).join(" · ");
-      const specs = [];
-      if (contexts.length) specs.push(["上下文", contexts.map(formatTok)]);
-      if (efforts.length) specs.push(["思考", efforts]);
+      const tags = [];
+      if (model.free) tags.push(["free", "免费"]);
+      else if (model.billing_mode === "request") {
+        tags.push(["group", "按次"]);
+        if (Number(model.price_request) > 0) tags.push(["rate", String(Number(Number(model.price_request).toFixed(4)))]);
+      } else {
+        const name = String(model.category_name || "").trim();
+        if (name) tags.push(["group", name]);
+        if (mult > 0) tags.push(["rate", rateText(mult)]);
+        if (!tags.length) {
+          const ratio = Number(model.ratio);
+          tags.push(ratio > 0 ? ["rate", rateText(ratio)] : ["group", "收费"]);
+        }
+      }
+      const tiers = model.price_tiers;
+      const hasTiers = Boolean(tiers && tiers.peak && tiers.off);
+      const activeKey = tiers && tiers.active === "off" ? "off" : "peak";
+      const fields = [
+        ["输入", "price_in", model.price_in],
+        ["输出", "price_out", model.price_out],
+        ["缓存读", "price_cache", model.price_cache],
+        ["缓存写", "price_cache_write", model.price_cache_write],
+      ];
+      const activeValues = hasTiers
+        ? fields.map(([, field]) => tiers[activeKey][field])
+        : fields.map(([, , value]) => value);
+      const priceGrid = hasTiers
+        ? `<span class="model-price-grid is-tiers">${fields.map(([label]) => `<span class="model-price"><i>${label}</i></span>`).join("")}${["peak", "off"].map((key) => fields.map(([, field]) => `<span class="model-price"><strong class="${key === activeKey ? "tier-on" : "tier-off"}">${priceText(tiers[key][field])}</strong></span>`).join("")).join("")}${activeValues.map((value) => {
+            const list = listPrice(value);
+            return `<span class="model-price"><em title="原价">${priceText(list) !== priceText(value) ? priceText(list) : ""}</em></span>`;
+          }).join("")}</span>`
+        : `<span class="model-price-grid">${fields.map(([label, , value]) => {
+            const list = listPrice(value);
+            const showList = priceText(list) !== priceText(value);
+            return `<span class="model-price"><i>${label}</i><strong title="现价">${priceText(value)}</strong>${showList ? `<em title="原价">${priceText(list)}</em>` : ""}</span>`;
+          }).join("")}</span>`;
+      const context = fullCount(model.context_window);
+      const output = fullCount(model.max_output);
+      const threshold = Number(model.tier_threshold);
+      const tierRatio = Number(model.tier_ratio);
       card.innerHTML = `
         <span class="model-card-head">
           <span class="model-card-name">${icon ? `<span class="model-vendor"><img src="icons/${icon}.svg" alt=""></span>` : `<span class="model-vendor is-unknown">?</span>`}<strong></strong></span>
-          <span class="model-card-tools"><span class="billing-chip" data-tier="${model.free ? "free" : "paid"}"></span></span>
         </span>
-        <small class="model-card-id"></small>
-        <span class="model-price-grid">
-          ${["输入", "输出", "缓存读", "缓存写"].map((label, index) => {
-            const current = [model.price_in, model.price_out, model.price_cache, model.price_cache_write][index];
-            const list = listPrice(current);
-            const showList = priceText(list) !== priceText(current);
-            return `<span class="model-price"><i>${label}</i><strong title="现价">${priceText(current)}</strong>${showList ? `<em title="原价">${priceText(list)}</em>` : ""}</span>`;
-          }).join("")}
-        </span>
-        ${caps ? `<small class="model-card-caps"></small>` : ""}
-        ${specs.length ? `<span class="model-spec">${specs.map(([label, values]) => `<span class="model-spec-row"><b>${label}</b>${values.map((value) => `<i>${value}</i>`).join("")}</span>`).join("")}</span>` : ""}`;
+        <span class="model-card-tags">${tags.map(([kind]) => `<span class="model-tag is-${kind}"></span>`).join("")}</span>
+        ${priceGrid}
+        ${hasTiers ? `<small class="model-card-note">高峰：工作日 09:00–12:00、14:00–18:00</small>` : ""}
+        ${threshold > 0 && tierRatio > 0 ? `<small class="model-card-note">输入超过 ${threshold.toLocaleString("en-US")}，整单 ${rateText(tierRatio)}</small>` : ""}
+        ${context || output ? `<span class="model-specs">${context ? `<span><b>最大上下文</b><em></em></span>` : ""}${output ? `<span><b>最大输出</b><em></em></span>` : ""}</span>` : ""}
+        ${efforts.length ? `<span class="model-levels"><b>思考</b>${efforts.map(() => `<i></i>`).join("")}</span>` : ""}`;
       card.querySelector("strong").textContent = model.label || model.id;
-      card.querySelector(".model-card-id").textContent = model.id;
-      card.querySelector(".billing-chip").textContent = chipOf(model);
-      if (caps) card.querySelector(".model-card-caps").textContent = caps;
+      card.querySelectorAll(".model-tag").forEach((node, index) => { node.textContent = tags[index][1]; });
+      const specValues = card.querySelectorAll(".model-specs em");
+      if (context && output) {
+        specValues[0].textContent = context;
+        specValues[1].textContent = output;
+      } else if (specValues[0]) specValues[0].textContent = context || output;
+      card.querySelectorAll(".model-levels i").forEach((node, index) => { node.textContent = efforts[index]; });
       return card;
     }));
     document.getElementById("modelWallEmpty").hidden = models.length > 0;
     document.getElementById("modelLoadHint").textContent = models.length ? `已显示 ${models.length} / ${catalog.length}` : "";
   };
-  document.getElementById("modelSeriesPick").addEventListener("click", (event) => {
-    const item = event.target.closest(".pick-item");
-    const menu = event.currentTarget.querySelector(".pick-menu");
-    if (item) {
-      modelSeries = item.dataset.value;
-      menu.hidden = true;
-      renderCatalog();
-      return;
-    }
-    if (event.target.closest(".pick-trigger") && menu) menu.hidden = !menu.hidden;
-  });
-  document.getElementById("modelCategoryPick").addEventListener("click", (event) => {
-    const item = event.target.closest(".pick-item");
-    const menu = event.currentTarget.querySelector(".pick-menu");
-    if (item) {
-      modelCategory = item.dataset.value;
-      menu.hidden = true;
-      renderCatalog();
-      return;
-    }
-    if (event.target.closest(".pick-trigger") && menu) menu.hidden = !menu.hidden;
+  document.getElementById("modelFilters").addEventListener("click", (event) => {
+    const chip = event.target.closest(".model-filter-chip");
+    if (!chip) return;
+    const row = chip.closest(".model-filter-row");
+    if (row?.id === "modelSeriesRow") modelSeries = chip.dataset.key;
+    else if (row?.id === "modelCategoryRow") modelCategory = chip.dataset.key;
+    else if (row?.id === "modelRateRow") modelRate = chip.dataset.key;
+    renderCatalog();
   });
   let catalogSig = "";
   const syncCatalog = async () => {
@@ -1117,6 +1180,8 @@
     const badge = tier === "good" ? "success" : tier === "fair" ? "warning" : "danger";
     document.getElementById("heartbeatPanel").dataset.state = tier;
     document.getElementById("hbMini").dataset.state = tier;
+    const logNav = document.querySelector('.nav-item[data-route="log"]');
+    if (logNav) logNav.dataset.hb = tier;
     document.getElementById("hbValue").textContent = String(ms);
     document.getElementById("hbMiniValue").textContent = `${ms}ms`;
     document.getElementById("hbQuality").textContent = label;
