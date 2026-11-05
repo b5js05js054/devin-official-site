@@ -22,6 +22,7 @@ type CatalogModel = {
 
 const SERIES: Array<[string, string[]]> = [
   ['Claude', ['claude']],
+  ['GPT', ['gpt', 'openai', 'chatgpt']],
   ['DeepSeek', ['deepseek']],
   ['Kimi', ['kimi']],
   ['MiMo', ['mimo']],
@@ -34,6 +35,8 @@ const SERIES: Array<[string, string[]]> = [
 
 const ICONS: Array<[string, string]> = [
   ['claude', 'claude'],
+  ['gpt', 'openai'],
+  ['openai', 'openai'],
   ['deepseek', 'deepseek'],
   ['glm', 'zhipu'],
   ['kimi', 'kimi'],
@@ -46,6 +49,7 @@ const ICONS: Array<[string, string]> = [
 
 const SERIES_ICON: Record<string, string> = {
   Claude: 'claude',
+  GPT: 'openai',
   DeepSeek: 'deepseek',
   Kimi: 'kimi',
   MiMo: 'mimo',
